@@ -1,0 +1,1649 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Inadimplência - Fast Tennis</title>
+<style>
+  :root{
+    color-scheme: light;
+    --page:      #f9f9f7;
+    --surface:   #ffffff;
+    --surface-2: #fcfcfb;
+    --ink:       #0b0b0b;
+    --ink-2:     #52514e;
+    --muted:     #898781;
+    --grid:      #e1e0d9;
+    --baseline:  #c3c2b7;
+    --border:    rgba(11,11,11,0.10);
+    --border-2:  rgba(11,11,11,0.06);
+
+    --c-opropria:  #2a78d6;
+    --c-doforyou:  #eb6834;
+    --c-franq:     #1baf7a;
+    --c-plug:      #eda100;
+    --c-playfast:  #e87ba4;
+
+    --s-good:     #0ca30c;
+    --s-warning:  #fab219;
+    --s-serious:  #ec835a;
+    --s-critical: #d03b3b;
+
+    --up-good:    #006300;
+    --down-bad:   #d03b3b;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      color-scheme: dark;
+      --page:      #0d0d0d;
+      --surface:   #1c1c1a;
+      --surface-2: #1a1a19;
+      --ink:       #ffffff;
+      --ink-2:     #c3c2b7;
+      --muted:     #8f8d86;
+      --grid:      #2c2c2a;
+      --baseline:  #383835;
+      --border:    rgba(255,255,255,0.12);
+      --border-2:  rgba(255,255,255,0.07);
+
+      --c-opropria:  #3987e5;
+      --c-doforyou:  #d95926;
+      --c-franq:     #199e70;
+      --c-plug:      #c98500;
+      --c-playfast:  #d55181;
+
+      --s-good:     #0ca30c;
+      --s-warning:  #fab219;
+      --s-serious:  #ec835a;
+      --s-critical: #d03b3b;
+
+      --up-good:    #0ca30c;
+      --down-bad:   #e66767;
+    }
+  }
+  :root[data-theme="dark"]{
+    color-scheme: dark;
+    --page:      #0d0d0d;
+    --surface:   #1c1c1a;
+    --surface-2: #1a1a19;
+    --ink:       #ffffff;
+    --ink-2:     #c3c2b7;
+    --muted:     #8f8d86;
+    --grid:      #2c2c2a;
+    --baseline:  #383835;
+    --border:    rgba(255,255,255,0.12);
+    --border-2:  rgba(255,255,255,0.07);
+
+    --c-opropria:  #3987e5;
+    --c-doforyou:  #d95926;
+    --c-franq:     #199e70;
+    --c-plug:      #c98500;
+    --c-playfast:  #d55181;
+
+    --s-good:     #0ca30c;
+    --s-warning:  #fab219;
+    --s-serious:  #ec835a;
+    --s-critical: #d03b3b;
+
+    --up-good:    #0ca30c;
+    --down-bad:   #e66767;
+  }
+
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--page);
+    color:var(--ink);
+    font-family:"IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+    padding-inline: 24px;
+    padding-block: 32px 32px;
+  }
+  h1,h2,h3{font-family:"Manrope", system-ui, -apple-system, "Segoe UI", sans-serif;}
+  .num{font-variant-numeric: tabular-nums;}
+  button{font-family:inherit;}
+  button:focus-visible{outline:2px solid var(--c-franq); outline-offset:2px;}
+
+  /* ---------- header: faixa azul (branded, fixa — não segue tema claro/escuro) ---------- */
+  .topbar{
+    position:relative; overflow:hidden;
+    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:9px;
+    background:linear-gradient(180deg, #1c2f5c 0%, #101a38 100%);
+    border-radius:16px;
+    padding:26px 130px 24px;
+    min-height:118px;
+    margin-bottom:22px;
+  }
+  .eyebrow{
+    font-size:12px; font-weight:600; letter-spacing:.08em; text-transform:uppercase;
+    color:var(--muted); margin:0 0 6px;
+  }
+  .topbar h1{
+    font-size:21px; font-weight:800; letter-spacing:.05em; text-transform:uppercase;
+    margin:0; color:#ffffff; text-align:center; text-wrap:balance; position:relative;
+  }
+  .topbar-accent{width:110px; height:3px; border-radius:2px; background:#4f8ef7; margin:3px 0 5px; position:relative;}
+  .topbar .update-control{align-items:center; text-align:center; position:relative;}
+  .topbar .update-meta{color:#ffffff; text-align:center; font-weight:700;}
+  .topbar .update-meta:empty{display:none;}
+  .topbar .update-meta.ok{color:#5fdc8a;}
+  .topbar .update-meta.err{color:#ff9393;}
+  .topbar .update-sub{color:#ffffff; font-weight:700; text-align:center;}
+  .topbar-logo-box{
+    position:absolute; right:20px; bottom:18px;
+    display:flex; align-items:center;
+  }
+  .topbar-logo{height:40px; width:auto; display:block;}
+
+  .topbar-nav-link{
+    position:absolute; left:20px; top:18px;
+    display:inline-flex; align-items:center; gap:6px;
+    font-size:12px; font-weight:700; color:#dbe4fb; text-decoration:none;
+    background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.18);
+    padding:6px 12px; border-radius:99px; transition:background .15s;
+  }
+  .topbar-nav-link:hover{background:rgba(255,255,255,0.16);}
+  .topbar-nav-link svg{width:12px; height:12px; flex:none;}
+
+  .filters-row{display:flex; align-items:flex-start; justify-content:space-between; gap:20px; flex-wrap:wrap; margin-bottom:22px;}
+  .filters-left{display:flex; flex-direction:column;}
+  .month-control{display:flex; flex-direction:column; align-items:flex-end; gap:8px; flex:none;}
+  .month-notes{display:flex; flex-direction:column; align-items:flex-end; gap:2px;}
+  .month-filter{display:flex; align-items:center; flex-wrap:wrap; gap:8px; justify-content:flex-end;}
+  .month-note{font-size:12px; color:var(--muted); margin:0; display:flex; align-items:center; gap:6px;}
+  .month-note .dot{width:7px;height:7px;border-radius:50%;background:var(--s-warning); flex:none;}
+  .clear-filters-btn{
+    background:none; border:none; padding:2px 0; margin:0;
+    font-size:11.5px; font-weight:600; color:var(--muted); cursor:pointer;
+    text-decoration:underline; text-underline-offset:2px;
+  }
+  .clear-filters-btn:hover{color:var(--ink);}
+
+  /* ---------- month dropdown (multi-select) ---------- */
+  .month-dropdown{position:relative;}
+  .month-dd-btn{
+    display:inline-flex; align-items:center; gap:8px;
+    border:1px solid var(--border); background:var(--surface); color:var(--ink);
+    font-size:12.5px; font-weight:600; padding:7px 12px; border-radius:9px; cursor:pointer;
+    min-width:150px; justify-content:space-between;
+  }
+  .month-dd-btn:hover{border-color:var(--ink-2);}
+  .month-dd-chevron{width:10px; height:10px; flex:none; color:var(--muted); transition:transform .15s;}
+  .month-dropdown.open .month-dd-chevron{transform:rotate(180deg);}
+  .month-dd-panel{
+    display:none;
+    position:absolute; top:calc(100% + 6px); right:0; z-index:10;
+    background:var(--surface); border:1px solid var(--border); border-radius:12px;
+    box-shadow:0 8px 24px rgba(0,0,0,0.12);
+    padding:8px; min-width:220px; max-height:320px; overflow-y:auto;
+  }
+  .month-dropdown.open .month-dd-panel{display:block;}
+  .month-dd-actions{display:flex; gap:6px; padding:2px 4px 8px; border-bottom:1px solid var(--border-2); margin-bottom:6px;}
+  .month-dd-actions button{
+    font-size:11px; font-weight:700; color:var(--ink-2); background:var(--surface-2);
+    border:1px solid var(--border-2); padding:4px 9px; border-radius:6px; cursor:pointer;
+  }
+  .month-dd-actions button:hover{background:var(--border-2);}
+  .month-dd-year{
+    font-size:11px; font-weight:700; color:var(--muted); letter-spacing:.04em;
+    padding:6px 6px 4px; text-transform:uppercase;
+  }
+  .month-dd-row{
+    display:flex; align-items:center; gap:8px; padding:6px 6px; border-radius:7px;
+    cursor:pointer; font-size:13px; color:var(--ink);
+  }
+  .month-dd-row:hover{background:var(--surface-2);}
+  .month-dd-row input{accent-color:var(--ink); width:14px; height:14px; flex:none; cursor:pointer;}
+  .month-dd-row.is-ongoing .month-dd-row-label::after{
+    content:'em andamento'; font-size:10px; font-weight:600; color:var(--muted);
+    margin-left:6px; text-transform:none; letter-spacing:0;
+  }
+
+  /* ---------- company filter ---------- */
+  .company-filter{
+    display:flex; align-items:center; flex-wrap:wrap; gap:8px;
+    margin-bottom:12px;
+  }
+  .company-filter:last-child{margin-bottom:0;}
+  .cf-label{font-size:12.5px; font-weight:700; color:var(--muted); margin-right:2px;}
+  .cf-chip{
+    display:inline-flex; align-items:center; gap:6px;
+    border:1px solid var(--border); background:var(--surface); color:var(--ink-2);
+    font-size:12.5px; font-weight:600; padding:6px 13px; border-radius:99px; cursor:pointer;
+    transition: background .15s, border-color .15s, color .15s;
+  }
+  .cf-chip:hover:not(.active){background:var(--surface-2); border-color:var(--ink-2);}
+  .cf-chip.active{background:var(--ink); color:var(--page); border-color:var(--ink);}
+  .cf-chip .cf-dot{width:8px; height:8px; border-radius:50%; flex:none;}
+
+  /* ---------- KPI row ---------- */
+  .kpi-row{
+    display:grid; grid-template-columns:repeat(4,1fr); gap:12px;
+    margin-bottom:28px;
+  }
+  .kpi{
+    background:var(--surface); border:1px solid var(--border); border-radius:14px;
+    padding:18px 20px; min-width:0;
+  }
+  .kpi .label{font-size:12.5px; color:var(--ink-2); font-weight:600; margin-bottom:10px;}
+  .kpi .value{font-size:27px; font-weight:800; letter-spacing:-.01em; line-height:1;}
+  .kpi .delta{display:flex; align-items:center; gap:5px; font-size:12.5px; font-weight:600; margin-top:10px;}
+  .kpi .delta.good{color:var(--up-good);}
+  .kpi .delta.bad{color:var(--down-bad);}
+  .kpi .delta.neutral{color:var(--ink-2);}
+  .kpi .delta .vs{color:var(--muted); font-weight:500;}
+  .kpi .delta svg{width:11px;height:11px; flex:none;}
+  .kpi .kpi-meta{display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin-top:10px;}
+  .kpi .chip{
+    font-size:11.5px; font-weight:700; color:var(--ink-2); background:var(--surface-2);
+    border:1px solid var(--border-2); padding:4px 9px; border-radius:6px; white-space:nowrap;
+  }
+  .kpi .kpi-sub{font-size:11.5px; color:var(--muted); margin-top:9px; padding-top:9px; border-top:1px solid var(--border-2);}
+  .kpi .kpi-sub b{color:var(--ink-2); font-weight:700;}
+
+  /* ---------- panel grid ---------- */
+  .grid2{display:grid; grid-template-columns: 1fr 1fr; gap:14px; margin-bottom:14px;}
+  .panel{
+    background:var(--surface); border:1px solid var(--border); border-radius:14px;
+    padding:22px 24px;
+  }
+  .panel h2{font-size:15px; font-weight:700; margin:0 0 3px;}
+  .panel .sub{font-size:12.5px; color:var(--muted); margin:0 0 18px;}
+
+  /* ---------- inadimplência / acordo por empresa: donut ---------- */
+  .panel-pie{display:flex; flex-direction:column;}
+  .panel-pie .pie-flex{flex:1;}
+  .pie-flex{display:flex; align-items:center; justify-content:center; gap:24px; flex-wrap:wrap;}
+  .pie-chart-wrap{flex:0 0 190px; width:190px;}
+  .pie-svg{width:100%; height:auto; overflow:visible;}
+  .pie-svg path{cursor:pointer; transition:opacity .15s;}
+  .pie-svg path.is-dim{opacity:.35;}
+  .pie-legend{flex:0 1 220px; width:220px; display:flex; flex-direction:column; gap:11px;}
+  .pie-legend-row{display:flex; align-items:center; gap:9px; cursor:pointer;}
+  .pie-legend-row.is-hidden{display:none;}
+  .pie-legend-row.is-dim{opacity:.4;}
+  .pie-legend-dot{width:10px; height:10px; border-radius:50%; flex:none;}
+  .pie-legend-body{flex:1; min-width:0; display:flex; flex-direction:column; gap:1px;}
+  .pie-legend-name{font-size:13px; font-weight:600; color:var(--ink);}
+  .pie-legend-value{font-size:11.5px; color:var(--muted); font-variant-numeric:tabular-nums;}
+  .pie-legend-trend{display:flex; align-items:center; gap:4px; font-size:10.5px; font-weight:600; margin-top:2px; color:var(--ink-2); font-variant-numeric:tabular-nums;}
+  .pie-legend-trend svg{width:9px; height:9px; flex:none;}
+  .pie-legend-trend .vs{color:var(--muted); font-weight:500;}
+  .pie-legend-trend.good{color:var(--up-good);}
+  .pie-legend-trend.bad{color:var(--down-bad);}
+
+  /* ---------- variante sem gráfico: painel só com o quadro de
+     destaques/variações — cards por empresa e a rosca ficam ocultos,
+     os elementos continuam no DOM (o JS que os atualiza não muda) ---------- */
+  .panel-list-only .pie-flex{display:none;}
+  .panel-list-only .sub{display:none;}
+  .panel-list-only .highlights-box{margin-top:14px; padding-top:0; border-top:none;}
+
+  /* ---------- highlights automáticos (texto com insights calculados a
+     partir dos dados do mês atual, independente dos filtros do topo) ---------- */
+  .highlights-box{margin-top:18px; padding-top:16px; border-top:1px solid var(--border-2);}
+  .highlights-title{font-size:11.5px; font-weight:700; text-transform:uppercase; letter-spacing:.05em; color:var(--ink-2); margin-bottom:10px;}
+  .highlights-list{margin:0; padding-left:18px; display:flex; flex-direction:column; gap:8px;}
+  .highlights-list li{font-size:13px; line-height:1.55; color:var(--ink-2);}
+  .highlights-list li b{color:var(--ink); font-weight:700;}
+  .highlights-list li b.hl-good{color:var(--up-good);}
+  .highlights-list li b.hl-bad{color:var(--down-bad);}
+
+
+  /* ---------- evolution / line chart ---------- */
+  .evo-panel{margin-bottom:14px;}
+  .evo-panel h2{margin-bottom:16px;}
+  .evo-flex{display:flex; gap:24px; align-items:flex-start; flex-wrap:wrap;}
+  .evo-chart{flex:1 1 380px; min-width:280px;}
+  .evo-side{flex:1 1 380px; min-width:280px;}
+  .evo-legend{display:flex; gap:16px; flex-wrap:wrap; margin-bottom:10px;}
+  .leg-item{display:inline-flex; align-items:center; gap:6px; font-size:11.5px; font-weight:600; color:var(--ink-2);}
+  .leg-item i{width:8px; height:8px; border-radius:50%; display:inline-block; flex:none;}
+  .tooltip{
+    position:absolute; pointer-events:none; opacity:0; transition:opacity .1s;
+    background:var(--ink); color:var(--page); font-size:11.5px; font-weight:600;
+    padding:6px 9px; border-radius:6px; white-space:nowrap; z-index:5;
+    transform:translate(-50%,-130%);
+  }
+  .month-bars-grouped{display:flex; align-items:flex-end; gap:8px; min-height:195px; margin-top:6px;}
+  .month-bars-grouped .grp{flex:1; display:flex; flex-direction:column; align-items:center; gap:4px; cursor:pointer;}
+  .month-bars-grouped .bars-row{display:flex; align-items:flex-end; gap:3px; width:100%; justify-content:center;}
+  .month-bars-grouped .bar-col{display:flex; flex-direction:column; align-items:center; gap:2px; flex:1; max-width:17px;}
+  .month-bars-grouped .val{font-size:9px; line-height:11px; min-height:11px; font-weight:700; color:var(--ink-2); white-space:nowrap; font-variant-numeric:tabular-nums;}
+  .month-bars-grouped .b{width:100%; border-radius:3px 3px 0 0; opacity:.55; transition:height .25s ease, opacity .15s; margin-top:2px;}
+  .month-bars-grouped .b.aberto{background:var(--c-franq);}
+  .month-bars-grouped .b.recuperado{background:var(--c-opropria);}
+  .month-bars-grouped .b.acordo-mes{background:var(--s-warning);}
+  .month-bars-grouped .grp.active .b{opacity:1;}
+  .month-bars-grouped .grp.active .val{color:var(--ink); font-weight:800;}
+  .month-bars-grouped .m{font-size:10.5px; color:var(--muted); font-weight:600;}
+  .month-bars-grouped .grp.active .m{color:var(--ink); font-weight:700;}
+  .month-bars-grouped.is-single .bar-col{max-width:30px;}
+
+  /* ---------- update control ---------- */
+  .update-control{position:relative; display:flex; flex-direction:column; align-items:flex-end; gap:5px; flex:none;}
+  .update-meta{font-size:11.5px; color:var(--muted); margin:0; text-align:right; min-height:14px;}
+  .update-meta.err{color:var(--s-critical); font-weight:600;}
+  .update-meta.ok{color:var(--s-good); font-weight:600;}
+  .update-sub{font-size:10.5px; color:var(--muted); margin:0; text-align:right;}
+
+  @media (max-width:860px){
+    .kpi-row{grid-template-columns:repeat(2,1fr);}
+    .grid2{grid-template-columns:1fr;}
+    .month-control{align-items:flex-start;}
+    .month-notes{align-items:flex-start;}
+    .month-filter{justify-content:flex-start;}
+  }
+  @media (max-width:640px){
+    .topbar{padding:22px 20px 20px;}
+    .topbar-logo-box{position:static; margin-top:14px;}
+    .topbar-nav-link{position:static; margin-bottom:10px;}
+  }
+  @media (max-width:520px){
+    .kpi-row{grid-template-columns:1fr;}
+    .topbar h1{font-size:18px;}
+  }
+</style>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@700;800&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">
+</head>
+<body>
+
+<div class="topbar">
+  <a class="topbar-nav-link" href="https://biftbr.github.io/Controle_Inadimplencia/">
+    Ver detalhado (Base)
+    <svg viewBox="0 0 12 12" fill="none"><path d="M4.5 2.5L9 6l-4.5 3.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  </a>
+  <h1>Inadimplência</h1>
+  <div class="topbar-accent"></div>
+
+  <div class="topbar-logo-box">
+    <img class="topbar-logo" src="data:image/png;base64,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" alt="Fast Tennis" />
+  </div>
+
+  <div class="update-control" id="updateControl">
+    <p class="update-meta" id="updateMeta"></p>
+  </div>
+</div>
+
+<div class="filters-row">
+  <div class="filters-left">
+    <div class="company-filter" id="companyFilter">
+      <span class="cf-label">Empresas:</span>
+      <button type="button" class="cf-chip active" data-co="__all__">Todas</button>
+      <button type="button" class="cf-chip" data-co="Operação Própria"><span class="cf-dot" style="background:var(--c-opropria)"></span>Operação Própria</button>
+      <button type="button" class="cf-chip" data-co="Do For You"><span class="cf-dot" style="background:var(--c-doforyou)"></span>Do For You</button>
+      <button type="button" class="cf-chip" data-co="Franqueadora"><span class="cf-dot" style="background:var(--c-franq)"></span>Franqueadora</button>
+      <button type="button" class="cf-chip" data-co="Plug Marketing"><span class="cf-dot" style="background:var(--c-plug)"></span>Plug Marketing</button>
+      <button type="button" class="cf-chip" data-co="Play Fast"><span class="cf-dot" style="background:var(--c-playfast)"></span>Play Fast</button>
+    </div>
+
+    <div class="company-filter" id="scopeFilter">
+      <span class="cf-label">Considerar pedidos de acordo?</span>
+      <button type="button" class="cf-chip" data-scope="sim">Sim</button>
+      <button type="button" class="cf-chip active" data-scope="nao">Não</button>
+    </div>
+  </div>
+
+  <div class="month-control" id="monthControl">
+    <div class="month-filter">
+      <span class="cf-label">Período:</span>
+      <div class="month-dropdown" id="monthDropdown">
+        <button type="button" class="month-dd-btn" id="monthDdBtn" aria-haspopup="listbox" aria-expanded="false">
+          <span id="monthDdLabel">Selecionar meses</span>
+          <svg viewBox="0 0 12 12" fill="none" class="month-dd-chevron"><path d="M2.5 4.5l3.5 3 3.5-3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+        <div class="month-dd-panel" id="monthDdPanel" role="listbox" aria-multiselectable="true">
+          <!-- grupos por ano + checkboxes gerados via JS a partir de PERIODS -->
+        </div>
+      </div>
+    </div>
+    <div class="month-notes">
+      <p class="month-note" id="monthNote"></p>
+    </div>
+    <button type="button" class="clear-filters-btn" id="clearFiltersBtn">Limpar filtros</button>
+  </div>
+</div>
+
+<div class="kpi-row">
+  <div class="kpi">
+    <div class="label" id="kpiPrevisaoLabel">Previsão de faturamento</div>
+    <div class="value num" id="kpiPrevisaoValue">—</div>
+  </div>
+  <div class="kpi">
+    <div class="label">Em aberto</div>
+    <div class="value num" id="kpiAbertoValue">—</div>
+    <div class="delta" id="kpiAbertoDelta"></div>
+  </div>
+  <div class="kpi">
+    <div class="label">Acordo/Solicitações</div>
+    <div class="value num" id="kpiAcordoValue">—</div>
+    <div class="delta" id="kpiAcordoDelta"></div>
+  </div>
+  <div class="kpi">
+    <div class="label">Recuperado do mês</div>
+    <div class="value num" id="kpiRecuperadoValue">—</div>
+    <div class="delta" id="kpiRecuperadoDelta"></div>
+  </div>
+</div>
+
+<div class="panel evo-panel">
+  <h2>Evolução mensal</h2>
+  <div class="evo-flex">
+    <div class="evo-chart">
+      <div class="evo-legend">
+        <span class="leg-item"><i style="background:var(--c-franq)"></i>Inadimplência (% da previsão)</span>
+        <span class="leg-item"><i style="background:var(--c-opropria)"></i>Recuperado (% da previsão)</span>
+      </div>
+      <svg id="lineChart" viewBox="0 0 460 160" style="width:100%; height:auto; overflow:visible;"></svg>
+    </div>
+    <div class="evo-side">
+      <div class="evo-legend">
+        <span class="leg-item"><i style="background:var(--c-franq)"></i>Em aberto ($)</span>
+        <span class="leg-item"><i style="background:var(--c-opropria)"></i>Recuperado ($)</span>
+      </div>
+      <div class="month-bars-grouped" id="monthBarsGrouped"></div>
+    </div>
+  </div>
+</div>
+
+<div class="panel evo-panel">
+  <h2>Evolução mensal — Acordo/Solicitações</h2>
+  <div class="evo-flex">
+    <div class="evo-side">
+      <div class="evo-legend">
+        <span class="leg-item"><i style="background:var(--s-warning)"></i>Acordo/Solicitações ($)</span>
+      </div>
+      <div class="month-bars-grouped is-single" id="acordoMesMonthBars"></div>
+    </div>
+    <div class="evo-chart">
+      <div class="pie-flex">
+        <div class="pie-chart-wrap">
+          <svg id="acordoMesPie" viewBox="0 0 220 220" class="pie-svg"></svg>
+        </div>
+        <div class="pie-legend" id="acordoMesPieLegend"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="grid2">
+  <div class="panel panel-pie">
+    <h2>Inadimplência por empresa</h2>
+    <p class="sub" id="companiesSub">Valor em aberto e % de inadimplência sobre a previsão</p>
+
+    <div class="pie-flex">
+      <div class="pie-chart-wrap">
+        <svg id="inadPie" viewBox="0 0 220 220" class="pie-svg"></svg>
+      </div>
+      <div class="pie-legend" id="inadPieLegend"></div>
+    </div>
+  </div>
+
+  <div class="panel panel-pie panel-list-only">
+    <h2>Highlights</h2>
+    <p class="sub" id="acordoSub">Valor em acordo/cessão e % já negociado sobre o valor em aberto</p>
+
+    <div class="pie-flex">
+      <div class="pie-chart-wrap">
+        <svg id="acordoPie" viewBox="0 0 220 220" class="pie-svg"></svg>
+      </div>
+      <div class="pie-legend" id="acordoPieLegend"></div>
+    </div>
+
+    <div class="highlights-box">
+      <ul class="highlights-list">
+        <li id="hl1"></li>
+        <li id="hl2"></li>
+        <li id="hl3"></li>
+        <li id="hl4"></li>
+        <li id="hl5"></li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<div class="tooltip" id="tooltip"></div>
+
+<script type="application/json" id="dataStore">{"updatedAt":"2026-09-14","months":{"2025-01":{"companies":{"Operação Própria":{"previsao":0,"aberto":0,"adimplencia":1,"acordo":0,"recuperado":0,"aging":{"0-30":0,"31-60":0,"61-90":0,"90+":0},"faturamento_realizado":0},"Do For You":{"previsao":0,"aberto":0,"adimplencia":1,"acordo":0,"recuperado":0,"aging":{"0-30":0,"31-60":0,"61-90":0,"90+":0},"faturamento_realizado":0},"Franqueadora":{"previsao":0,"aberto":0,"adimplencia":1,"acordo":0,"recuperado":0,"aging":{"0-30":0,"31-60":0,"61-90":0,"90+":0},"faturamento_realizado":0},"Plug Marketing":{"previsao":0,"aberto":0,"adimplencia":1,"acordo":0,"recuperado":0,"aging":{"0-30":0,"31-60":0,"61-90":0,"90+":0},"faturamento_realizado":0},"Play Fast":{"previsao":0,"aberto":0,"adimplencia":1,"acordo":0,"recuperado":0,"aging":{"0-30":0,"31-60":0,"61-90":0,"90+":0},"faturamento_realizado":0}}},"2025-02":{"companies":{"Operação Própria":{"previsao":0,"aberto":0,"adimplencia":1,"acordo":0,"recuperado":0,"aging":{"0-30":0,"31-60":0,"61-90":0,"90+":0},"faturamento_realizado":0},"Do For You":{"previsao":0,"aberto":0,"adimplencia":1,"acordo":0,"recuperado":0,"aging":{"0-30":0,"31-60":0,"61-90":0,"90+":0},"faturamento_realizado":0},"Franqueadora":{"previsao":0,"aberto":0,"adimplencia":1,"acordo":0,"recuperado":0,"aging":{"0-30":0,"31-60":0,"61-90":0,"90+":0},"faturamento_realizado":0},"Plug Marketing":{"previsao":0,"aberto":0,"adimplencia":1,"acordo":0,"recuperado":0,"aging":{"0-30":0,"31-60":0,"61-90":0,"90+":0},"faturamento_realizado":0},"Play Fast":{"previsao":0,"aberto":0,"adimplencia":1,"acordo":0,"recuperado":0,"aging":{"0-30":0,"31-60":0,"61-90":0,"90+":0},"faturamento_realizado":0}}},"2025-03":{"companies":{"Operação Própria":{"previsao":0,"aberto":0,"adimplencia":1,"acordo":0,"recuperado":0,"aging":{"0-30":0,"31-60":0,"61-90":0,"90+":0},"faturamento_realizado":0},"Do For You":{"previsao":0,"aberto":0,"adimplencia":1,"acordo":0,"recuperado":0,"aging":{"0-30":0,"31-60":0,"61-90":0,"90+":0},"faturamento_realizado":0},"Franqueadora":{"previsao":0,"aberto":0,"adimplencia":1,"acordo":0,"recuperado":0,"aging":{"0-30":0,"31-60":0,"61-90":0,"90+":0},"faturamento_realizado":0},"Plug Marketing":{"previsao":0,"aberto":0,"adimplencia":1,"acordo":0,"recuperado":0,"aging":{"0-30":0,"31-60":0,"61-90":0,"90+":0},"faturamento_realizado":0},"Play Fast":{"previsao":0,"aberto":0,"adimplencia":1,"acordo":0,"recuperado":0,"aging":{"0-30":0,"31-60":0,"61-90":0,"90+":0},"faturamento_realizado":0}}},"2025-04":{"companies":{"Operação Própria":{"previsao":0,"aberto":0,"adimplencia":1,"acordo":0,"recuperado":0,"aging":{"0-30":0,"31-60":0,"61-90":0,"90+":0},"faturamento_realizado":0},"Do For You":{"previsao":0,"aberto":0,"adimplencia":1,"acordo":0,"recuperado":0,"aging":{"0-30":0,"31-60":0,"61-90":0,"90+":0},"faturamento_realizado":0},"Franqueadora":{"previsao":0,"aberto":0,"adimplencia":1,"acordo":0,"recuperado":0,"aging":{"0-30":0,"31-60":0,"61-90":0,"90+":0},"faturamento_realizado":0},"Plug Marketing":{"previsao":0,"aberto":0,"adimplencia":1,"acordo":0,"recuperado":0,"aging":{"0-30":0,"31-60":0,"61-90":0,"90+":0},"faturamento_realizado":0},"Play Fast":{"previsao":0,"aberto":0,"adimplencia":1,"acordo":0,"recuperado":0,"aging":{"0-30":0,"31-60":0,"61-90":0,"90+":0},"faturamento_realizado":0}}},"2025-05":{"companies":{"Operação Própria":{"previsao":0,"aberto":0,"adimplencia":1,"acordo":0,"recuperado":0,"aging":{"0-30":0,"31-60":0,"61-90":0,"90+":0},"faturamento_realizado":0},"Do For You":{"previsao":0,"aberto":0,"adimplencia":1,"acordo":0,"recuperado":0,"aging":{"0-30":0,"31-60":0,"61-90":0,"90+":0},"faturamento_realizado":0},"Franqueadora":{"previsao":0,"aberto":0,"adimplencia":1,"acordo":0,"recuperado":0,"aging":{"0-30":0,"31-60":0,"61-90":0,"90+":0},"faturamento_realizado":0},"Plug Marketing":{"previsao":0,"aberto":0,"adimplencia":1,"acordo":0,"recuperado":0,"aging":{"0-30":0,"31-60":0,"61-90":0,"90+":0},"faturamento_realizado":0},"Play Fast":{"previsao":0,"aberto":0,"adimplencia":1,"acordo":0,"recuperado":0,"aging":{"0-30":0,"31-60":0,"61-90":0,"90+":0},"faturamento_realizado":0}}},"2025-06":{"companies":{"Operação Própria":{"previsao":0,"aberto":0,"adimplencia":1,"acordo":0,"recuperado":0,"aging":{"0-30":0,"31-60":0,"61-90":0,"90+":0},"faturamento_realizado":0},"Do For You":{"previsao":0,"aberto":0,"adimplencia":1,"acordo":0,"recuperado":0,"aging":{"0-30":0,"31-60":0,"61-90":0,"90+":0},"faturamento_realizado":0},"Franqueadora":{"previsao":0,"aberto":0,"adimplencia":1,"acordo":0,"recuperado":0,"aging":{"0-30":0,"31-60":0,"61-90":0,"90+":0},"faturamento_realizado":0},"Plug Marketing":{"previsao":0,"aberto":0,"adimplencia":1,"acordo":0,"recuperado":0,"aging":{"0-30":0,"31-60":0,"61-90":0,"90+":0},"faturamento_realizado":0},"Play Fast":{"previsao":0,"aberto":0,"adimplencia":1,"acordo":0,"recuperado":0,"aging":{"0-30":0,"31-60":0,"61-90":0,"90+":0},"faturamento_realizado":0}}},"2025-07":{"companies":{"Operação Própria":{"previsao":0,"aberto":0,"adimplencia":1,"acordo":0,"recuperado":0,"aging":{"0-30":0,"31-60":0,"61-90":0,"90+":0},"faturamento_realizado":0},"Do For You":{"previsao":0,"aberto":0,"adimplencia":1,"acordo":0,"recuperado":0,"aging":{"0-30":0,"31-60":0,"61-90":0,"90+":0},"faturamento_realizado":0},"Franqueadora":{"previsao":0,"aberto":0,"adimplencia":1,"acordo":0,"recuperado":0,"aging":{"0-30":0,"31-60":0,"61-90":0,"90+":0},"faturamento_realizado":0},"Plug Marketing":{"previsao":0,"aberto":0,"adimplencia":1,"acordo":0,"recuperado":0,"aging":{"0-30":0,"31-60":0,"61-90":0,"90+":0},"faturamento_realizado":0},"Play Fast":{"previsao":0,"aberto":0,"adimplencia":1,"acordo":0,"recuperado":0,"aging":{"0-30":0,"31-60":0,"61-90":0,"90+":0},"faturamento_realizado":0}}},"2025-08":{"companies":{"Operação Própria":{"previsao":0,"aberto":0,"adimplencia":1,"acordo":0,"recuperado":0,"aging":{"0-30":0,"31-60":0,"61-90":0,"90+":0},"faturamento_realizado":0},"Do For You":{"previsao":0,"aberto":0,"adimplencia":1,"acordo":0,"recuperado":0,"aging":{"0-30":0,"31-60":0,"61-90":0,"90+":0},"faturamento_realizado":0},"Franqueadora":{"previsao":0,"aberto":0,"adimplencia":1,"acordo":0,"recuperado":0,"aging":{"0-30":0,"31-60":0,"61-90":0,"90+":0},"faturamento_realizado":0},"Plug Marketing":{"previsao":0,"aberto":0,"adimplencia":1,"acordo":0,"recuperado":0,"aging":{"0-30":0,"31-60":0,"61-90":0,"90+":0},"faturamento_realizado":0},"Play Fast":{"previsao":0,"aberto":0,"adimplencia":1,"acordo":0,"recuperado":0,"aging":{"0-30":0,"31-60":0,"61-90":0,"90+":0},"faturamento_realizado":0}}},"2025-09":{"companies":{"Operação Própria":{"previsao":0,"aberto":0,"adimplencia":1,"acordo":0,"recuperado":0,"aging":{"0-30":0,"31-60":0,"61-90":0,"90+":0},"faturamento_realizado":0},"Do For You":{"previsao":0,"aberto":0,"adimplencia":1,"acordo":0,"recuperado":0,"aging":{"0-30":0,"31-60":0,"61-90":0,"90+":0},"faturamento_realizado":0},"Franqueadora":{"previsao":0,"aberto":0,"adimplencia":1,"acordo":0,"recuperado":0,"aging":{"0-30":0,"31-60":0,"61-90":0,"90+":0},"faturamento_realizado":0},"Plug Marketing":{"previsao":0,"aberto":0,"adimplencia":1,"acordo":0,"recuperado":0,"aging":{"0-30":0,"31-60":0,"61-90":0,"90+":0},"faturamento_realizado":0},"Play Fast":{"previsao":0,"aberto":0,"adimplencia":1,"acordo":0,"recuperado":0,"aging":{"0-30":0,"31-60":0,"61-90":0,"90+":0},"faturamento_realizado":0}}},"2025-10":{"companies":{"Operação Própria":{"previsao":0,"aberto":0,"adimplencia":1,"acordo":0,"recuperado":0,"aging":{"0-30":0,"31-60":0,"61-90":0,"90+":0},"faturamento_realizado":0},"Do For You":{"previsao":0,"aberto":0,"adimplencia":1,"acordo":0,"recuperado":0,"aging":{"0-30":0,"31-60":0,"61-90":0,"90+":0},"faturamento_realizado":0},"Franqueadora":{"previsao":0,"aberto":0,"adimplencia":1,"acordo":0,"recuperado":0,"aging":{"0-30":0,"31-60":0,"61-90":0,"90+":0},"faturamento_realizado":0},"Plug Marketing":{"previsao":0,"aberto":0,"adimplencia":1,"acordo":0,"recuperado":0,"aging":{"0-30":0,"31-60":0,"61-90":0,"90+":0},"faturamento_realizado":0},"Play Fast":{"previsao":0,"aberto":0,"adimplencia":1,"acordo":0,"recuperado":0,"aging":{"0-30":0,"31-60":0,"61-90":0,"90+":0},"faturamento_realizado":0}}},"2025-11":{"companies":{"Operação Própria":{"previsao":0,"aberto":0,"adimplencia":1,"acordo":0,"recuperado":0,"aging":{"0-30":0,"31-60":0,"61-90":0,"90+":0},"faturamento_realizado":0},"Do For You":{"previsao":0,"aberto":0,"adimplencia":1,"acordo":0,"recuperado":0,"aging":{"0-30":0,"31-60":0,"61-90":0,"90+":0},"faturamento_realizado":0},"Franqueadora":{"previsao":0,"aberto":0,"adimplencia":1,"acordo":0,"recuperado":0,"aging":{"0-30":0,"31-60":0,"61-90":0,"90+":0},"faturamento_realizado":0},"Plug Marketing":{"previsao":0,"aberto":0,"adimplencia":1,"acordo":0,"recuperado":0,"aging":{"0-30":0,"31-60":0,"61-90":0,"90+":0},"faturamento_realizado":0},"Play Fast":{"previsao":0,"aberto":0,"adimplencia":1,"acordo":0,"recuperado":0,"aging":{"0-30":0,"31-60":0,"61-90":0,"90+":0},"faturamento_realizado":0}}},"2025-12":{"companies":{"Operação Própria":{"previsao":0,"aberto":0,"adimplencia":1,"acordo":0,"recuperado":0,"aging":{"0-30":0,"31-60":0,"61-90":0,"90+":0},"faturamento_realizado":0},"Do For You":{"previsao":0,"aberto":0,"adimplencia":1,"acordo":0,"recuperado":0,"aging":{"0-30":0,"31-60":0,"61-90":0,"90+":0},"faturamento_realizado":0},"Franqueadora":{"previsao":0,"aberto":0,"adimplencia":1,"acordo":0,"recuperado":0,"aging":{"0-30":0,"31-60":0,"61-90":0,"90+":0},"faturamento_realizado":0},"Plug Marketing":{"previsao":0,"aberto":0,"adimplencia":1,"acordo":0,"recuperado":0,"aging":{"0-30":0,"31-60":0,"61-90":0,"90+":0},"faturamento_realizado":0},"Play Fast":{"previsao":0,"aberto":0,"adimplencia":1,"acordo":0,"recuperado":0,"aging":{"0-30":0,"31-60":0,"61-90":0,"90+":0},"faturamento_realizado":0}}},"2026-01":{"companies":{"Operação Própria":{"previsao":394617,"aberto":0,"adimplencia":1,"acordo":0,"recuperado":0,"aging":{"0-30":0,"31-60":0,"61-90":0,"90+":0},"faturamento_realizado":394617},"Do For You":{"previsao":220471,"aberto":0,"adimplencia":1,"acordo":0,"recuperado":0,"aging":{"0-30":0,"31-60":0,"61-90":0,"90+":0},"faturamento_realizado":220471},"Franqueadora":{"previsao":462875,"aberto":0,"adimplencia":1,"acordo":12570.96,"recuperado":0,"aging":{"0-30":0,"31-60":0,"61-90":0,"90+":0},"faturamento_realizado":462875},"Plug Marketing":{"previsao":120500,"aberto":0,"adimplencia":1,"acordo":0,"recuperado":0,"aging":{"0-30":0,"31-60":0,"61-90":0,"90+":0},"faturamento_realizado":120500},"Play Fast":{"previsao":69311,"aberto":0,"adimplencia":1,"acordo":0,"recuperado":0,"aging":{"0-30":0,"31-60":0,"61-90":0,"90+":0},"faturamento_realizado":69311}}},"2026-02":{"companies":{"Operação Própria":{"previsao":374397,"aberto":0,"adimplencia":1,"acordo":0,"recuperado":0,"aging":{"0-30":0,"31-60":0,"61-90":0,"90+":0},"faturamento_realizado":374397},"Do For You":{"previsao":289950,"aberto":0,"adimplencia":1,"acordo":0,"recuperado":0,"aging":{"0-30":0,"31-60":0,"61-90":0,"90+":0},"faturamento_realizado":289950},"Franqueadora":{"previsao":657180,"aberto":0,"adimplencia":1,"acordo":52570.96,"recuperado":0,"aging":{"0-30":0,"31-60":0,"61-90":0,"90+":0},"faturamento_realizado":657180},"Plug Marketing":{"previsao":131500,"aberto":0,"adimplencia":1,"acordo":0,"recuperado":0,"aging":{"0-30":0,"31-60":0,"61-90":0,"90+":0},"faturamento_realizado":131500},"Play Fast":{"previsao":77470,"aberto":0,"adimplencia":1,"acordo":0,"recuperado":0,"aging":{"0-30":0,"31-60":0,"61-90":0,"90+":0},"faturamento_realizado":77470}}},"2026-03":{"companies":{"Operação Própria":{"previsao":416871,"aberto":0,"adimplencia":1,"acordo":0,"recuperado":0,"aging":{"0-30":0,"31-60":0,"61-90":0,"90+":0},"faturamento_realizado":416871},"Do For You":{"previsao":272540,"aberto":0,"adimplencia":1,"acordo":0,"recuperado":0,"aging":{"0-30":0,"31-60":0,"61-90":0,"90+":0},"faturamento_realizado":272540},"Franqueadora":{"previsao":697051,"aberto":4966.88,"adimplencia":0.9928744381687997,"acordo":71427.4,"recuperado":0,"aging":{"0-30":0,"31-60":0,"61-90":0,"90+":0},"faturamento_realizado":697051},"Plug Marketing":{"previsao":170909,"aberto":0,"adimplencia":1,"acordo":0,"recuperado":0,"aging":{"0-30":0,"31-60":0,"61-90":0,"90+":0},"faturamento_realizado":170909},"Play Fast":{"previsao":107173,"aberto":71.92,"adimplencia":0.9993289354594908,"acordo":0,"recuperado":0,"aging":{"0-30":0,"31-60":0,"61-90":0,"90+":0},"faturamento_realizado":107173}}},"2026-04":{"companies":{"Operação Própria":{"previsao":370830,"aberto":0,"adimplencia":1,"acordo":0,"recuperado":0,"aging":{"0-30":0,"31-60":0,"61-90":0,"90+":0},"faturamento_realizado":370830},"Do For You":{"previsao":180176,"aberto":0,"adimplencia":1,"acordo":0,"recuperado":0,"aging":{"0-30":0,"31-60":0,"61-90":0,"90+":0},"faturamento_realizado":180176},"Franqueadora":{"previsao":711791,"aberto":7741.98,"adimplencia":0.9891232398274212,"acordo":35617.72,"recuperado":0,"aging":{"0-30":0,"31-60":0,"61-90":0,"90+":0},"faturamento_realizado":711791},"Plug Marketing":{"previsao":228568,"aberto":5681.82,"adimplencia":0.9751416646249694,"acordo":16318.2,"recuperado":0,"aging":{"0-30":0,"31-60":0,"61-90":0,"90+":0},"faturamento_realizado":228568},"Play Fast":{"previsao":99172,"aberto":71.92,"adimplencia":0.9992747953051264,"acordo":0,"recuperado":0,"aging":{"0-30":0,"31-60":0,"61-90":0,"90+":0},"faturamento_realizado":99172}}},"2026-05":{"companies":{"Operação Própria":{"previsao":378307,"aberto":0,"adimplencia":1,"acordo":0,"recuperado":0,"aging":{"0-30":0,"31-60":0,"61-90":0,"90+":0},"faturamento_realizado":378307},"Do For You":{"previsao":283480,"aberto":0,"adimplencia":1,"acordo":0,"recuperado":0,"aging":{"0-30":0,"31-60":0,"61-90":0,"90+":0},"faturamento_realizado":283480},"Franqueadora":{"previsao":856630,"aberto":7786.34,"adimplencia":0.9909104981147053,"acordo":23046.76,"recuperado":0,"aging":{"0-30":0,"31-60":0,"61-90":0,"90+":0},"faturamento_realizado":856630},"Plug Marketing":{"previsao":222336,"aberto":5681.82,"adimplencia":0.9744448942141624,"acordo":16318.2,"recuperado":0,"aging":{"0-30":0,"31-60":0,"61-90":0,"90+":0},"faturamento_realizado":222336},"Play Fast":{"previsao":105593,"aberto":143.84,"adimplencia":0.9986377884897674,"acordo":0,"recuperado":0,"aging":{"0-30":0,"31-60":0,"61-90":0,"90+":0},"faturamento_realizado":105593}}},"2026-06":{"companies":{"Operação Própria":{"previsao":393138,"aberto":0,"adimplencia":1,"acordo":0,"recuperado":0,"aging":{"0-30":0,"31-60":0,"61-90":0,"90+":0},"faturamento_realizado":393138},"Do For You":{"previsao":300000,"aberto":0,"adimplencia":1,"acordo":0,"recuperado":0,"aging":{"0-30":0,"31-60":0,"61-90":0,"90+":0},"faturamento_realizado":300000},"Franqueadora":{"previsao":748555,"aberto":10302.32,"adimplencia":0.9862370567292984,"acordo":35617.72,"recuperado":0,"aging":{"0-30":0,"31-60":0,"61-90":0,"90+":0},"faturamento_realizado":748555},"Plug Marketing":{"previsao":220677,"aberto":8522.73,"adimplencia":0.9613791650239943,"acordo":16318.2,"recuperado":2840.91,"aging":{"0-30":0,"31-60":0,"61-90":0,"90+":0},"faturamento_realizado":220677},"Play Fast":{"previsao":114709,"aberto":143.84,"adimplencia":0.9987460443382821,"acordo":0,"recuperado":0,"aging":{"0-30":0,"31-60":0,"61-90":0,"90+":0},"faturamento_realizado":114709}}},"2026-07":{"companies":{"Operação Própria":{"previsao":378377,"aberto":0,"adimplencia":1,"acordo":0,"recuperado":0,"aging":{"0-30":0,"31-60":0,"61-90":0,"90+":0},"faturamento_realizado":378377},"Do For You":{"previsao":44175,"aberto":0,"adimplencia":1,"acordo":0,"recuperado":0,"aging":{"0-30":0,"31-60":0,"61-90":0,"90+":0},"faturamento_realizado":44175},"Franqueadora":{"previsao":835132,"aberto":24189.48,"adimplencia":0.9710351417500467,"acordo":46386.46,"recuperado":3142.74,"aging":{"0-30":0,"31-60":0,"61-90":0,"90+":0},"faturamento_realizado":835132},"Plug Marketing":{"previsao":244411,"aberto":34090.92,"adimplencia":0.8605180617893631,"acordo":16318.2,"recuperado":0,"aging":{"0-30":0,"31-60":0,"61-90":0,"90+":0},"faturamento_realizado":244411},"Play Fast":{"previsao":116386,"aberto":4899.84,"adimplencia":0.9579000910762463,"acordo":2378,"recuperado":0,"aging":{"0-30":0,"31-60":0,"61-90":0,"90+":0},"faturamento_realizado":116386}}},"2026-08":{"companies":{"Operação Própria":{"previsao":401409,"aberto":0,"adimplencia":1,"acordo":0,"recuperado":0,"aging":{"0-30":0,"31-60":0,"61-90":0,"90+":0},"faturamento_realizado":401409},"Do For You":{"previsao":274637,"aberto":0,"adimplencia":1,"acordo":0,"recuperado":0,"aging":{"0-30":0,"31-60":0,"61-90":0,"90+":0},"faturamento_realizado":274637},"Franqueadora":{"previsao":920305,"aberto":82665.06,"adimplencia":0.910176452371768,"acordo":50283.84,"recuperado":47141.1,"aging":{"0-30":0,"31-60":0,"61-90":0,"90+":0},"faturamento_realizado":920305},"Plug Marketing":{"previsao":274792,"aberto":59829.55,"adimplencia":0.7822733194561705,"acordo":32653.44,"recuperado":28579.55,"aging":{"0-30":0,"31-60":0,"61-90":0,"90+":0},"faturamento_realizado":274792},"Play Fast":{"previsao":121269,"aberto":8319.68,"adimplencia":0.9313948329746267,"acordo":0,"recuperado":19634.9,"aging":{"0-30":0,"31-60":0,"61-90":0,"90+":0},"faturamento_realizado":121269}}},"2026-09":{"companies":{"Operação Própria":{"previsao":395247,"aberto":0,"adimplencia":1,"acordo":0,"recuperado":0,"aging":{"0-30":0,"31-60":0,"61-90":0,"90+":0}},"Do For You":{"previsao":96260,"aberto":0,"adimplencia":1,"acordo":0,"recuperado":0,"aging":{"0-30":0,"31-60":0,"61-90":0,"90+":0}},"Franqueadora":{"previsao":936297,"aberto":16525.03,"adimplencia":0.9823506536921511,"acordo":3142.74,"recuperado":6285.48,"aging":{"0-30":0,"31-60":0,"61-90":0,"90+":0}},"Plug Marketing":{"previsao":243722,"aberto":11022.73,"adimplencia":0.9547733483230895,"acordo":2272.73,"recuperado":0,"aging":{"0-30":0,"31-60":0,"61-90":0,"90+":0}},"Play Fast":{"previsao":132608,"aberto":5362.68,"adimplencia":0.9595599058880309,"acordo":0,"recuperado":1189,"aging":{"0-30":0,"31-60":0,"61-90":0,"90+":0}}}}}}</script>
+
+<script>
+(function(){
+  var COMPANIES = ['Operação Própria','Do For You','Franqueadora','Plug Marketing','Play Fast'];
+
+  var MONTH_NAMES_PT = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+  var MONTH_SHORT_PT = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+  function pad2(n){ return n < 10 ? '0'+n : ''+n; }
+
+  // primeiro mês disponível na base (a planilha tem 2025 e 2026); o último
+  // mês é sempre o mês corrente, calculado a partir da data real — assim o
+  // filtro se estende sozinho a cada novo mês, sem precisar editar o código.
+  var PERIOD_START_YEAR = 2026, PERIOD_START_MONTH = 1;
+
+  function buildPeriods(){
+    var now = new Date();
+    var endYear = now.getFullYear(), endMonth = now.getMonth() + 1;
+    var periods = [], meta = {};
+    var y = PERIOD_START_YEAR, m = PERIOD_START_MONTH;
+    while(y < endYear || (y === endYear && m <= endMonth)){
+      var key = y + '-' + pad2(m);
+      periods.push(key);
+      meta[key] = {
+        year: y,
+        month: m,
+        name: MONTH_NAMES_PT[m-1],
+        short: MONTH_SHORT_PT[m-1] + '/' + String(y).slice(2),
+        lower: MONTH_NAMES_PT[m-1].toLowerCase() + '/' + y,
+        col: pad2(m) + '/' + y
+      };
+      m++; if(m > 12){ m = 1; y++; }
+    }
+    return {periods: periods, meta: meta};
+  }
+
+  var PERIODS_INFO = buildPeriods();
+  var PERIODS = PERIODS_INFO.periods;     // todos os períodos disponíveis (filtro de mês / KPIs)
+  var PERIOD_META = PERIODS_INFO.meta;
+  var CURRENT_YEAR = PERIOD_META[PERIODS[PERIODS.length-1]].year;
+  // "evolução mensal" fica restrita ao ano corrente, pra não poluir o gráfico
+  var EVO_MONTHS = PERIODS.filter(function(k){ return PERIOD_META[k].year === CURRENT_YEAR; });
+
+  // dados vivos: começam com o que veio embutido no HTML; assim que a página
+  // carrega, uma primeira atualização via fetch() já busca os dados mais
+  // recentes da planilha publicada (ver seção "atualização de dados" abaixo).
+  var STORE = JSON.parse(document.getElementById('dataStore').textContent);
+  var DATA = STORE.months;
+
+  var AGING_KEYS = ['0-30','31-60','61-90','90+'];
+
+  // ---- aggregate data across a chosen set of months AND a chosen set of companies ----
+  // regra: "Em aberto" e "Acordo/Solicitações" (saldo) são saldos (estoque),
+  // nunca soma. Com um único mês selecionado, mostram o saldo daquele mês;
+  // com vários meses selecionados, mostram sempre o saldo do mês em
+  // andamento (o mês corrente real), não o último da seleção. "Previsão de
+  // faturamento", "Recuperado" e "Acordo/Solicitações Mês" (fluxo, usado na
+  // evolução mensal e no pizza por empresa daquele gráfico) são fluxos —
+  // esses sim são somados ao longo dos meses selecionados.
+  function computeAggregate(monthSet, companySet){
+    var out = {previsao_total:0, aberto_total:0, acordo_total:0, recuperado:0, acordoMes_total:0, faturamento_realizado:0, companies:{}, aging:{'0-30':0,'31-60':0,'61-90':0,'90+':0}};
+    var perCo = {};
+    COMPANIES.forEach(function(c){ perCo[c] = {previsao:0, aberto:0, acordo:0, recuperado:0, acordoMes:0, aging:{'0-30':0,'31-60':0,'61-90':0,'90+':0}}; });
+
+    var monthList = PERIODS.filter(function(k){ return monthSet.has(k); });
+    var lastMonth = monthList.length ? monthList[monthList.length - 1] : null;
+    var ongoingMonth = PERIODS[PERIODS.length - 1];
+    var stockMonth = monthList.length > 1 ? ongoingMonth : lastMonth;
+
+    // fluxo: soma em todos os meses selecionados
+    monthList.forEach(function(mKey){
+      var m = DATA[mKey];
+      COMPANIES.forEach(function(c){
+        if(!companySet.has(c)) return;
+        var cd = m.companies[c];
+        out.previsao_total += cd.previsao;
+        out.recuperado += cd.recuperado;
+        out.acordoMes_total += (cd.acordoMes || 0);
+        if(cd.faturamento_realizado !== undefined){ out.faturamento_realizado += cd.faturamento_realizado; }
+        var p = perCo[c];
+        p.previsao += cd.previsao; p.recuperado += cd.recuperado; p.acordoMes += (cd.acordoMes || 0);
+      });
+    });
+
+    // estoque: "em aberto" e "acordo/solicitações" usam o mês em andamento
+    // quando há mais de um mês selecionado (senão o único mês selecionado)
+    if(stockMonth){
+      var sm = DATA[stockMonth];
+      COMPANIES.forEach(function(c){
+        if(!companySet.has(c)) return;
+        var cd = sm.companies[c];
+        out.aberto_total += cd.aberto;
+        out.acordo_total += cd.acordo;
+        var p = perCo[c];
+        p.aberto += cd.aberto; p.acordo += cd.acordo;
+        AGING_KEYS.forEach(function(k){ out.aging[k] += cd.aging[k]; p.aging[k] += cd.aging[k]; });
+      });
+    }
+
+    COMPANIES.forEach(function(c){
+      if(!companySet.has(c)) return;
+      var p = perCo[c];
+      out.companies[c] = {previsao:p.previsao, aberto:p.aberto, adimplencia: p.previsao > 0 ? (1 - p.aberto/p.previsao) : 1, acordo:p.acordo, recuperado:p.recuperado, acordoMes:p.acordoMes, aging:p.aging};
+    });
+    return out;
+  }
+
+  var tooltip = document.getElementById('tooltip');
+  function showTip(x, y, html, container){
+    tooltip.innerHTML = html;
+    tooltip.style.opacity = 1;
+    var rect = container.getBoundingClientRect();
+    var pageRect = document.body.getBoundingClientRect();
+    tooltip.style.left = (rect.left - pageRect.left + x) + 'px';
+    tooltip.style.top = (rect.top - pageRect.top + y) + 'px';
+  }
+  function hideTip(){ tooltip.style.opacity = 0; }
+
+  function fmtBRL(v){
+    return 'R$ ' + Math.round(v).toLocaleString('pt-BR');
+  }
+  function fmtBRL2(v){
+    return 'R$ ' + v.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
+  }
+  function fmtPct(v){
+    return v.toFixed(1).replace('.', ',') + '%';
+  }
+  function fmtMil(v){
+    return (v/1000).toLocaleString('pt-BR',{minimumFractionDigits:1,maximumFractionDigits:1});
+  }
+  function arrowSVG(up){
+    var rotate = up ? ' transform="rotate(180 6 6)"' : '';
+    return '<svg viewBox="0 0 12 12" fill="none"><path d="M2 4l4 4 4-4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"' + rotate + '/></svg>';
+  }
+
+  function renderCurrencyDelta(elId, curVal, prevVal, prevLabel, badWhenUp, multiNote){
+    var el = document.getElementById(elId);
+    if(multiNote){
+      el.className = 'delta neutral';
+      el.innerHTML = '<span class="vs">' + multiNote + '</span>';
+      return;
+    }
+    if(prevVal === null || prevVal === undefined){
+      el.className = 'delta neutral';
+      el.innerHTML = '<span class="vs">sem mês anterior para comparar</span>';
+      return;
+    }
+    var diff = curVal - prevVal;
+    var pct = prevVal !== 0 ? Math.abs(diff / prevVal * 100) : 0;
+    var up = diff > 0;
+    var cls = 'neutral';
+    if(badWhenUp !== null && Math.abs(diff) > 0.5){ cls = (up === badWhenUp) ? 'bad' : 'good'; }
+    el.className = 'delta ' + cls;
+    if(Math.abs(diff) < 0.5){
+      el.innerHTML = '<span class="vs">estável vs. ' + prevLabel + '</span>';
+      return;
+    }
+    el.innerHTML = arrowSVG(up) + ' ' + fmtBRL(Math.abs(diff)) + ' <span class="vs">(' + (up?'+':'-') + fmtPct(pct) + ') vs. ' + prevLabel + '</span>';
+  }
+
+  // versão compacta do highlight de variação, usada nas legendas de pizza
+  // (ex.: "Acordo/Solicitações por empresa") — mesma lógica do
+  // renderCurrencyDelta acima, mas escrevendo direto num elemento (não por
+  // id) e com texto mais curto pra caber na legenda
+  function renderMiniDelta(el, curVal, prevVal, prevLabel, multiNote){
+    if(!el) return;
+    if(multiNote){
+      el.className = 'pie-legend-trend';
+      el.innerHTML = '<span class="vs">' + multiNote + '</span>';
+      return;
+    }
+    if(prevVal === null || prevVal === undefined){
+      el.className = 'pie-legend-trend';
+      el.innerHTML = '<span class="vs">sem mês anterior</span>';
+      return;
+    }
+    var diff = curVal - prevVal;
+    var pct = prevVal !== 0 ? Math.abs(diff / prevVal * 100) : 0;
+    var up = diff > 0;
+    el.className = 'pie-legend-trend';
+    if(Math.abs(diff) < 0.5){
+      el.innerHTML = '<span class="vs">estável vs. ' + prevLabel + '</span>';
+      return;
+    }
+    el.innerHTML = arrowSVG(up) + ' ' + fmtPct(pct) + ' <span class="vs">vs. ' + prevLabel + '</span>';
+  }
+
+  function fmtPP(v){
+    return Math.abs(v).toFixed(1).replace('.', ',') + ' p.p';
+  }
+
+  // ---- highlights automáticos do quadro "Acordo/Solicitações por
+  // empresa": sempre sobre o mês corrente (o último de PERIODS) e todas as
+  // empresas, independente dos filtros de período/empresa do topo do
+  // painel — é um retrato fixo da situação atual, não uma view filtrável ----
+  function updateHighlights(){
+    var curMonth = PERIODS[PERIODS.length - 1];
+    var allCo = new Set(COMPANIES);
+    var aggNow = computeAggregate(new Set([curMonth]), allCo);
+    var inadNowPct = aggNow.previsao_total > 0
+      ? ((aggNow.aberto_total + (abertoOnly ? 0 : aggNow.acordo_total)) / aggNow.previsao_total) * 100
+      : 0;
+
+    document.getElementById('hl1').innerHTML =
+      'A inadimplência atual representa <b>' + fmtPct(inadNowPct) + '</b> da previsão.';
+
+    var idx = PERIODS.indexOf(curMonth);
+    var hl2 = document.getElementById('hl2');
+    if(idx >= 3){
+      var month3Ago = PERIODS[idx - 3];
+      var agg3Ago = computeAggregate(new Set([month3Ago]), allCo);
+      var inad3AgoPct = agg3Ago.previsao_total > 0
+        ? ((agg3Ago.aberto_total + (abertoOnly ? 0 : agg3Ago.acordo_total)) / agg3Ago.previsao_total) * 100
+        : 0;
+      var diffPP = inadNowPct - inad3AgoPct;
+      if(Math.abs(diffPP) < 0.05){
+        hl2.innerHTML = 'Comparando com os últimos 3 meses (' + PERIOD_META[month3Ago].short + '), a inadimplência está <b>estável</b>.';
+      } else {
+        var up = diffPP > 0;
+        var dirWord = up ? 'aumento' : 'redução';
+        var dirCls = up ? 'hl-bad' : 'hl-good';
+        hl2.innerHTML = 'Comparando com os últimos 3 meses (' + PERIOD_META[month3Ago].short + '), houve <b class="' + dirCls + '">' + dirWord + '</b> de <b class="' + dirCls + '">' + fmtPP(diffPP) + '</b>.';
+      }
+    } else {
+      hl2.innerHTML = 'Ainda não há histórico de 3 meses suficiente para essa comparação.';
+    }
+
+    var perCo = {};
+    COMPANIES.forEach(function(c){ perCo[c] = aggNow.companies[c]; });
+
+    // maior percentual do total em aberto
+    var abertoTotal = COMPANIES.reduce(function(s, c){ return s + perCo[c].aberto; }, 0);
+    var worstCo = null, worstShare = -1;
+    COMPANIES.forEach(function(c){
+      var share = abertoTotal > 0 ? perCo[c].aberto / abertoTotal * 100 : 0;
+      if(share > worstShare){ worstShare = share; worstCo = c; }
+    });
+    document.getElementById('hl3').innerHTML = (abertoTotal > 0 && worstCo)
+      ? 'Necessário atenção com os valores em aberto da <b>' + worstCo + '</b>, que neste momento tem o maior percentual (<b>' + fmtPct(worstShare) + '</b>) do total em aberto.'
+      : 'Nenhuma empresa com valores em aberto em ' + PERIOD_META[curMonth].lower + '.';
+
+    // maior recuperação
+    var bestRecCo = null, bestRec = -1;
+    COMPANIES.forEach(function(c){ if(perCo[c].recuperado > bestRec){ bestRec = perCo[c].recuperado; bestRecCo = c; } });
+    document.getElementById('hl4').innerHTML = (bestRec > 0 && bestRecCo)
+      ? 'A maior recuperação de valores em aberto ocorreu na <b>' + bestRecCo + '</b>, com <b>' + fmtBRL2(bestRec) + '</b> em ' + PERIOD_META[curMonth].lower + '.'
+      : 'Nenhuma recuperação de valores em aberto registrada em ' + PERIOD_META[curMonth].lower + '.';
+
+    // maior valor de acordo/solicitações mês
+    var bestAmCo = null, bestAm = -1;
+    COMPANIES.forEach(function(c){ if(perCo[c].acordoMes > bestAm){ bestAm = perCo[c].acordoMes; bestAmCo = c; } });
+    document.getElementById('hl5').innerHTML = (bestAm > 0 && bestAmCo)
+      ? 'A maior quantidade em valores de acordo/solicitações mês ocorreu na <b>' + bestAmCo + '</b>, com <b>' + fmtBRL2(bestAm) + '</b> em ' + PERIOD_META[curMonth].lower + '.'
+      : 'Nenhum valor de acordo/solicitações mês registrado em ' + PERIOD_META[curMonth].lower + '.';
+  }
+
+  // ---- company filter ----
+  var cfChips = Array.prototype.slice.call(document.querySelectorAll('#companyFilter .cf-chip'));
+  var selectedCompanies = new Set(COMPANIES);
+  var allMode = true;
+
+  function setCompanyFilter(co){
+    if(co === '__all__'){
+      selectedCompanies = new Set(COMPANIES);
+      allMode = true;
+    } else if(allMode){
+      selectedCompanies = new Set([co]);
+      allMode = false;
+    } else {
+      if(selectedCompanies.has(co)){ selectedCompanies.delete(co); }
+      else { selectedCompanies.add(co); }
+      if(selectedCompanies.size === 0){
+        selectedCompanies = new Set(COMPANIES);
+        allMode = true;
+      } else if(selectedCompanies.size === COMPANIES.length){
+        allMode = true;
+      }
+    }
+    cfChips.forEach(function(chip){
+      var c = chip.getAttribute('data-co');
+      var isActive = c === '__all__' ? allMode : (!allMode && selectedCompanies.has(c));
+      chip.classList.toggle('active', isActive);
+    });
+    renderAll();
+  }
+  cfChips.forEach(function(chip){
+    chip.addEventListener('click', function(){ setCompanyFilter(chip.getAttribute('data-co')); });
+  });
+
+  // ---- inadimplência por empresa: donut (composição do valor em aberto
+  // entre as empresas selecionadas) + legenda com o detalhe por empresa ----
+  var PIE_SVG_NS = 'http://www.w3.org/2000/svg';
+  var COMPANY_COLOR_VAR = {
+    'Operação Própria': '--c-opropria',
+    'Do For You': '--c-doforyou',
+    'Franqueadora': '--c-franq',
+    'Plug Marketing': '--c-plug',
+    'Play Fast': '--c-playfast'
+  };
+  var PIE_CX = 110, PIE_CY = 110, PIE_R_OUT = 96, PIE_R_IN = 58;
+
+  function pieXY(r, angleDeg){
+    var rad = (angleDeg - 90) * Math.PI / 180;
+    return {x: PIE_CX + r * Math.cos(rad), y: PIE_CY + r * Math.sin(rad)};
+  }
+  function donutPath(startAngle, endAngle){
+    var span = Math.min(endAngle - startAngle, 359.99);
+    var end = startAngle + span;
+    var largeArc = span > 180 ? 1 : 0;
+    var p1 = pieXY(PIE_R_OUT, startAngle), p2 = pieXY(PIE_R_OUT, end);
+    var p3 = pieXY(PIE_R_IN, end), p4 = pieXY(PIE_R_IN, startAngle);
+    return ['M', p1.x, p1.y, 'A', PIE_R_OUT, PIE_R_OUT, 0, largeArc, 1, p2.x, p2.y,
+      'L', p3.x, p3.y, 'A', PIE_R_IN, PIE_R_IN, 0, largeArc, 0, p4.x, p4.y, 'Z'].join(' ');
+  }
+
+  var PIE_LABEL_R = (PIE_R_IN + PIE_R_OUT) / 2;
+
+  // constrói um donut + legenda reutilizável (usado tanto para "Inadimplência
+  // por empresa" quanto para "Em acordo/cessão por empresa")
+  function buildPieChart(svgId, legendId, tipHtmlFn, withTrend){
+    var svg = document.getElementById(svgId);
+    while(svg.firstChild){ svg.removeChild(svg.firstChild); }
+
+    var emptyPath = document.createElementNS(PIE_SVG_NS, 'path');
+    emptyPath.setAttribute('fill', 'var(--surface-2)');
+    emptyPath.setAttribute('stroke', 'var(--border)');
+    emptyPath.setAttribute('stroke-width', '1');
+    svg.appendChild(emptyPath);
+
+    var slices = {}, labels = {}, legendRows = {};
+    var legendEl = document.getElementById(legendId);
+    COMPANIES.forEach(function(c){
+      var path = document.createElementNS(PIE_SVG_NS, 'path');
+      path.setAttribute('fill', 'var(' + COMPANY_COLOR_VAR[c] + ')');
+      path.setAttribute('stroke', 'var(--surface)');
+      path.setAttribute('stroke-width', '2');
+      svg.appendChild(path);
+      slices[c] = path;
+
+      var label = document.createElementNS(PIE_SVG_NS, 'text');
+      label.setAttribute('text-anchor', 'middle');
+      label.setAttribute('dominant-baseline', 'central');
+      label.setAttribute('font-size', '13');
+      label.setAttribute('font-weight', '800');
+      label.setAttribute('fill', '#fff');
+      label.setAttribute('stroke', 'rgba(0,0,0,.32)');
+      label.setAttribute('stroke-width', '3');
+      label.setAttribute('paint-order', 'stroke');
+      label.style.pointerEvents = 'none';
+      svg.appendChild(label);
+      labels[c] = label;
+
+      var row = document.createElement('div');
+      row.className = 'pie-legend-row';
+      row.setAttribute('data-company', c);
+      var dot = document.createElement('span');
+      dot.className = 'pie-legend-dot';
+      dot.style.background = 'var(' + COMPANY_COLOR_VAR[c] + ')';
+      var body = document.createElement('div');
+      body.className = 'pie-legend-body';
+      var nameEl = document.createElement('div');
+      nameEl.className = 'pie-legend-name'; nameEl.textContent = c;
+      var valueEl = document.createElement('div');
+      valueEl.className = 'pie-legend-value';
+      body.appendChild(nameEl); body.appendChild(valueEl);
+      var trendEl = null;
+      if(withTrend){
+        trendEl = document.createElement('div');
+        trendEl.className = 'pie-legend-trend';
+        body.appendChild(trendEl);
+      }
+      row.appendChild(dot); row.appendChild(body);
+      legendEl.appendChild(row);
+      legendRows[c] = {row: row, value: valueEl, trend: trendEl};
+
+      function highlight(on){
+        COMPANIES.forEach(function(other){
+          var isThis = other === c;
+          slices[other].classList.toggle('is-dim', on && !isThis);
+          labels[other].style.opacity = (on && !isThis) ? '.35' : '';
+          legendRows[other].row.classList.toggle('is-dim', on && !isThis);
+        });
+      }
+      path.addEventListener('mousemove', function(e){
+        var rect = svg.getBoundingClientRect();
+        showTip(e.clientX - rect.left, e.clientY - rect.top, tipHtmlFn(c), svg);
+        highlight(true);
+      });
+      path.addEventListener('mouseleave', function(){ hideTip(); highlight(false); });
+      row.addEventListener('mousemove', function(e){
+        var rect = row.getBoundingClientRect();
+        showTip(rect.width/2, 0, tipHtmlFn(c), row);
+        highlight(true);
+      });
+      row.addEventListener('mouseleave', function(){ hideTip(); highlight(false); });
+    });
+
+    return {svg: svg, emptyPath: emptyPath, slices: slices, labels: labels, legendRows: legendRows};
+  }
+
+  var inadPieHandle = buildPieChart('inadPie', 'inadPieLegend', function(c){
+    var cd = lastAggregate.companies[c];
+    var totalSel = COMPANIES.reduce(function(s, k){
+      return selectedCompanies.has(k) ? s + lastAggregate.companies[k].aberto + (abertoOnly ? 0 : lastAggregate.companies[k].acordo) : s;
+    }, 0);
+    var inadVal = cd.aberto + (abertoOnly ? 0 : cd.acordo);
+    var shareOfTotal = totalSel > 0 ? inadVal/totalSel*100 : 0;
+    return c + '<br>Em aberto: ' + fmtBRL2(inadVal) +
+      '<br>' + fmtPct(shareOfTotal) + ' do total em aberto' +
+      '<br>' + fmtPct(cd.previsao > 0 ? inadVal/cd.previsao*100 : 0) + ' da previsão';
+  });
+  var pieEmptyPath = inadPieHandle.emptyPath, pieSlices = inadPieHandle.slices,
+      pieLabels = inadPieHandle.labels, pieLegendRows = inadPieHandle.legendRows;
+
+  // ---- scope toggle: "Considerar acordos?" Sim = inadimplência soma em
+  // aberto + acordo/cessão; Não (padrão) = inadimplência considera só o em aberto ----
+  var scopeButtons = Array.prototype.slice.call(document.querySelectorAll('#scopeFilter .cf-chip'));
+  var abertoOnly = true;
+  scopeButtons.forEach(function(btn){
+    btn.addEventListener('click', function(){
+      abertoOnly = btn.getAttribute('data-scope') === 'nao';
+      scopeButtons.forEach(function(b){ b.classList.toggle('active', b === btn); });
+      renderAll();
+    });
+  });
+
+  var acordoPieHandle = buildPieChart('acordoPie', 'acordoPieLegend', function(c){
+    var cd = lastAggregate.companies[c];
+    var totalAcordo = COMPANIES.reduce(function(s, k){
+      return selectedCompanies.has(k) ? s + lastAggregate.companies[k].acordo : s;
+    }, 0);
+    var share = totalAcordo > 0 ? cd.acordo/totalAcordo*100 : 0;
+    return c + '<br>Em acordo/cessão: ' + fmtBRL2(cd.acordo) +
+      '<br>' + fmtPct(share) + ' do total em acordo/cessão' +
+      '<br>' + fmtPct(cd.aberto > 0 ? cd.acordo/cd.aberto*100 : 0) + ' do valor em aberto já negociado';
+  });
+  var acordoPieEmptyPath = acordoPieHandle.emptyPath, acordoPieSlices = acordoPieHandle.slices,
+      acordoPieLabels = acordoPieHandle.labels, acordoPieLegendRows = acordoPieHandle.legendRows;
+
+  // ---- pizza "Evolução mensal — Acordo/Solicitações": composição por
+  // empresa do fluxo de Acordo/Solicitações Mês somado ao longo de TODOS
+  // os meses mostrados no gráfico de colunas ao lado (não é saldo, e não
+  // segue o filtro de período do topo — é sempre a somatória do gráfico
+  // de colunas, ver lastAcordoMesYearAgg em renderAll) ----
+  var acordoMesPieHandle = buildPieChart('acordoMesPie', 'acordoMesPieLegend', function(c){
+    var cd = lastAcordoMesYearAgg.companies[c];
+    var totalAcordoMes = COMPANIES.reduce(function(s, k){
+      return selectedCompanies.has(k) ? s + lastAcordoMesYearAgg.companies[k].acordoMes : s;
+    }, 0);
+    var share = totalAcordoMes > 0 ? cd.acordoMes/totalAcordoMes*100 : 0;
+    return c + '<br>Acordo/Solicitações: ' + fmtBRL2(cd.acordoMes) +
+      '<br>' + fmtPct(share) + ' do total do gráfico';
+  });
+  var acordoMesPieEmptyPath = acordoMesPieHandle.emptyPath, acordoMesPieSlices = acordoMesPieHandle.slices,
+      acordoMesPieLabels = acordoMesPieHandle.labels, acordoMesPieLegendRows = acordoMesPieHandle.legendRows;
+
+  // ---- line chart (built once, values + highlight + scale updated per render) ----
+  var svg = document.getElementById('lineChart');
+  while(svg.firstChild){ svg.removeChild(svg.firstChild); }
+  var W = 460, H = 160, padL = 36, padR = 14, padT = 16, padB = 26;
+  var minV = 75, maxV = 90;
+  function xPos(i){ return padL + (W - padL - padR) * (i/(EVO_MONTHS.length-1)); }
+  function yPos(v){ return padT + (H - padT - padB) * (1 - (v - minV)/(maxV - minV)); }
+  var svgns = 'http://www.w3.org/2000/svg';
+
+  var gridGroup = document.createElementNS(svgns,'g');
+  svg.appendChild(gridGroup);
+
+  function renderGrid(){
+    gridGroup.innerHTML = '';
+    for(var i=0;i<=3;i++){
+      var v = minV + (maxV-minV)*i/3;
+      var line = document.createElementNS(svgns,'line');
+      line.setAttribute('x1', padL); line.setAttribute('x2', W - padR);
+      line.setAttribute('y1', yPos(v)); line.setAttribute('y2', yPos(v));
+      line.setAttribute('stroke', 'var(--grid)'); line.setAttribute('stroke-width', '1');
+      gridGroup.appendChild(line);
+      var lbl = document.createElementNS(svgns,'text');
+      lbl.setAttribute('x', padL - 8); lbl.setAttribute('y', yPos(v)+3.5);
+      lbl.setAttribute('text-anchor','end'); lbl.setAttribute('font-size','9.5');
+      lbl.setAttribute('fill','var(--muted)'); lbl.textContent = fmtPct(v);
+      gridGroup.appendChild(lbl);
+    }
+  }
+
+  var path = document.createElementNS(svgns,'path');
+  path.setAttribute('fill','none');
+  path.setAttribute('stroke', 'var(--c-franq)');
+  path.setAttribute('stroke-width','2');
+  path.setAttribute('stroke-linecap','round');
+  path.setAttribute('stroke-linejoin','round');
+  svg.appendChild(path);
+
+  var path2 = document.createElementNS(svgns,'path');
+  path2.setAttribute('fill','none');
+  path2.setAttribute('stroke', 'var(--c-opropria)');
+  path2.setAttribute('stroke-width','2');
+  path2.setAttribute('stroke-linecap','round');
+  path2.setAttribute('stroke-linejoin','round');
+  svg.appendChild(path2);
+
+  var dots = {}, valueLabels = {}, xLabels = {}, dots2 = {}, valueLabels2 = {};
+  EVO_MONTHS.forEach(function(m,i){
+    var cx = xPos(i);
+    var dot = document.createElementNS(svgns,'circle');
+    dot.setAttribute('cx',cx); dot.setAttribute('r','4');
+    dot.setAttribute('fill','var(--c-franq)');
+    dot.setAttribute('stroke','var(--surface)'); dot.setAttribute('stroke-width','2');
+    dot.style.cursor='pointer';
+    dot.addEventListener('mousemove', function(e){
+      var rect = svg.getBoundingClientRect();
+      var cy = parseFloat(dot.getAttribute('cy'));
+      showTip(cx * (rect.width/W), cy * (rect.height/H), PERIOD_META[m].short + ' · Inadimplência: ' + valueLabels[m].textContent, svg);
+    });
+    dot.addEventListener('mouseleave', hideTip);
+    dot.addEventListener('click', function(){ toggleMonth(m); });
+    svg.appendChild(dot);
+    dots[m] = dot;
+
+    var xlbl = document.createElementNS(svgns,'text');
+    xlbl.setAttribute('x', cx); xlbl.setAttribute('y', H - 6);
+    xlbl.setAttribute('text-anchor','middle'); xlbl.setAttribute('font-size','10.5');
+    xlbl.setAttribute('font-weight','600');
+    xlbl.setAttribute('fill','var(--ink-2)'); xlbl.textContent = PERIOD_META[m].name.slice(0,3);
+    xlbl.style.cursor='pointer';
+    xlbl.addEventListener('click', function(){ toggleMonth(m); });
+    svg.appendChild(xlbl);
+    xLabels[m] = xlbl;
+
+    var vlbl = document.createElementNS(svgns,'text');
+    vlbl.setAttribute('x', cx);
+    vlbl.setAttribute('text-anchor','middle'); vlbl.setAttribute('font-size','11.5');
+    vlbl.setAttribute('font-weight','800');
+    vlbl.setAttribute('fill','var(--ink)'); vlbl.style.opacity = 0;
+    svg.appendChild(vlbl);
+    valueLabels[m] = vlbl;
+
+    var dot2 = document.createElementNS(svgns,'circle');
+    dot2.setAttribute('cx',cx); dot2.setAttribute('r','4');
+    dot2.setAttribute('fill','var(--c-opropria)');
+    dot2.setAttribute('stroke','var(--surface)'); dot2.setAttribute('stroke-width','2');
+    dot2.style.cursor='pointer';
+    dot2.addEventListener('mousemove', function(e){
+      var rect = svg.getBoundingClientRect();
+      var cy2 = parseFloat(dot2.getAttribute('cy'));
+      showTip(cx * (rect.width/W), cy2 * (rect.height/H), PERIOD_META[m].short + ' · Recuperado: ' + valueLabels2[m].textContent, svg);
+    });
+    dot2.addEventListener('mouseleave', hideTip);
+    dot2.addEventListener('click', function(){ toggleMonth(m); });
+    svg.appendChild(dot2);
+    dots2[m] = dot2;
+
+    var vlbl2 = document.createElementNS(svgns,'text');
+    vlbl2.setAttribute('x', cx);
+    vlbl2.setAttribute('text-anchor','middle'); vlbl2.setAttribute('font-size','10.5');
+    vlbl2.setAttribute('font-weight','700');
+    vlbl2.setAttribute('fill','var(--c-opropria)'); vlbl2.style.opacity = 0;
+    svg.appendChild(vlbl2);
+    valueLabels2[m] = vlbl2;
+  });
+
+  // ---- month bars: colunas agrupadas (em aberto + recuperado lado a lado
+  // por mês), construídas uma vez e atualizadas a cada render ----
+  var mbg = document.getElementById('monthBarsGrouped');
+  mbg.innerHTML = '';
+  var monthBarEls = {};
+  EVO_MONTHS.forEach(function(m){
+    var grp = document.createElement('div'); grp.className = 'grp'; grp.setAttribute('data-month', m);
+    var barsRow = document.createElement('div'); barsRow.className = 'bars-row';
+
+    var colAberto = document.createElement('div'); colAberto.className = 'bar-col';
+    var valAberto = document.createElement('div'); valAberto.className = 'val';
+    var barAberto = document.createElement('div'); barAberto.className = 'b aberto';
+    colAberto.appendChild(valAberto); colAberto.appendChild(barAberto);
+
+    var colRec = document.createElement('div'); colRec.className = 'bar-col';
+    var valRec = document.createElement('div'); valRec.className = 'val';
+    var barRec = document.createElement('div'); barRec.className = 'b recuperado';
+    colRec.appendChild(valRec); colRec.appendChild(barRec);
+
+    barsRow.appendChild(colAberto); barsRow.appendChild(colRec);
+    var lbl = document.createElement('div'); lbl.className='m'; lbl.textContent = PERIOD_META[m].name.slice(0,3);
+    grp.appendChild(barsRow); grp.appendChild(lbl);
+
+    grp.addEventListener('click', function(){ toggleMonth(m); });
+    grp.addEventListener('mousemove', function(e){
+      var rect = grp.getBoundingClientRect();
+      var els = monthBarEls[m];
+      showTip(rect.width/2, 0, PERIOD_META[m].short + '<br>Em aberto: ' + els.abertoLabel + '<br>Recuperado: ' + els.recuperadoLabel, grp);
+    });
+    grp.addEventListener('mouseleave', hideTip);
+    mbg.appendChild(grp);
+    monthBarEls[m] = {grp:grp, barAberto:barAberto, valAberto:valAberto, barRec:barRec, valRec:valRec, abertoLabel:'', recuperadoLabel:''};
+  });
+
+  // ---- month bars: coluna única de Acordo/Solicitações por mês (fluxo,
+  // "Acordo/Solicitações Mês"), construída uma vez e atualizada a cada render ----
+  var amMbg = document.getElementById('acordoMesMonthBars');
+  amMbg.innerHTML = '';
+  var acordoMesBarEls = {};
+  EVO_MONTHS.forEach(function(m){
+    var grp = document.createElement('div'); grp.className = 'grp'; grp.setAttribute('data-month', m);
+    var barsRow = document.createElement('div'); barsRow.className = 'bars-row';
+
+    var col = document.createElement('div'); col.className = 'bar-col';
+    var val = document.createElement('div'); val.className = 'val';
+    var bar = document.createElement('div'); bar.className = 'b acordo-mes';
+    col.appendChild(val); col.appendChild(bar);
+
+    barsRow.appendChild(col);
+    var lbl = document.createElement('div'); lbl.className='m'; lbl.textContent = PERIOD_META[m].name.slice(0,3);
+    grp.appendChild(barsRow); grp.appendChild(lbl);
+
+    grp.addEventListener('click', function(){ toggleMonth(m); });
+    grp.addEventListener('mousemove', function(e){
+      var rect = grp.getBoundingClientRect();
+      var els = acordoMesBarEls[m];
+      showTip(rect.width/2, 0, PERIOD_META[m].short + '<br>Acordo/Solicitações: ' + els.label, grp);
+    });
+    grp.addEventListener('mouseleave', hideTip);
+    amMbg.appendChild(grp);
+    acordoMesBarEls[m] = {grp:grp, bar:bar, val:val, label:''};
+  });
+
+  // ---- month filter: lista suspensa com checkboxes, agrupada por ano,
+  // gerada dinamicamente a partir de PERIODS (cobre todos os anos da base) ----
+  var monthDropdown = document.getElementById('monthDropdown');
+  var monthDdBtn = document.getElementById('monthDdBtn');
+  var monthDdLabel = document.getElementById('monthDdLabel');
+  var monthDdPanel = document.getElementById('monthDdPanel');
+
+  var ddActions = document.createElement('div');
+  ddActions.className = 'month-dd-actions';
+  var btnCurrent = document.createElement('button');
+  btnCurrent.type = 'button';
+  btnCurrent.textContent = 'Só o mês atual';
+  btnCurrent.addEventListener('click', function(e){
+    e.stopPropagation();
+    selectedMonths = new Set([PERIODS[PERIODS.length - 1]]);
+    renderAll();
+  });
+  var btnYearToDate = document.createElement('button');
+  btnYearToDate.type = 'button';
+  btnYearToDate.textContent = 'Ano corrente';
+  btnYearToDate.addEventListener('click', function(e){
+    e.stopPropagation();
+    selectedMonths = new Set(EVO_MONTHS);
+    renderAll();
+  });
+  ddActions.appendChild(btnCurrent);
+  ddActions.appendChild(btnYearToDate);
+  monthDdPanel.appendChild(ddActions);
+
+  var monthChips = []; // {input, key}
+  var yearsSeen = [];
+  PERIODS.forEach(function(key){
+    var y = PERIOD_META[key].year;
+    if(yearsSeen.indexOf(y) === -1){
+      yearsSeen.push(y);
+      var yearLbl = document.createElement('div');
+      yearLbl.className = 'month-dd-year';
+      yearLbl.textContent = y;
+      monthDdPanel.appendChild(yearLbl);
+    }
+    var row = document.createElement('label');
+    row.className = 'month-dd-row';
+    if(key === PERIODS[PERIODS.length-1]){ row.classList.add('is-ongoing'); }
+    var input = document.createElement('input');
+    input.type = 'checkbox';
+    input.setAttribute('data-month', key);
+    input.addEventListener('change', function(){
+      if(!input.checked && selectedMonths.size <= 1 && selectedMonths.has(key)){
+        input.checked = true; // mantém sempre pelo menos um mês selecionado
+        return;
+      }
+      toggleMonth(key);
+    });
+    var lbl = document.createElement('span');
+    lbl.className = 'month-dd-row-label';
+    lbl.textContent = PERIOD_META[key].name;
+    row.appendChild(input);
+    row.appendChild(lbl);
+    monthDdPanel.appendChild(row);
+    monthChips.push({input: input, key: key});
+  });
+
+  var ddOpen = false;
+  function setDdOpen(open){
+    ddOpen = open;
+    monthDropdown.classList.toggle('open', open);
+    monthDdBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
+  }
+  monthDdBtn.addEventListener('click', function(e){
+    e.stopPropagation();
+    setDdOpen(!ddOpen);
+  });
+  document.addEventListener('click', function(e){
+    if(ddOpen && !monthDropdown.contains(e.target)){ setDdOpen(false); }
+  });
+  document.addEventListener('keydown', function(e){ if(e.key === 'Escape' && ddOpen){ setDdOpen(false); } });
+
+  var selectedMonths = new Set([PERIODS[PERIODS.length - 1]]);
+  var lastAggregate = null;
+  var lastAcordoMesYearAgg = null; // soma de Acordo/Solicitações Mês por empresa ao longo de todos os meses do gráfico "Evolução mensal", independente do filtro de período no topo
+
+  // seleção múltipla: marcar/desmarcar adiciona ou remove o mês da seleção;
+  // sempre mantém pelo menos um mês selecionado
+  function toggleMonth(month){
+    if(selectedMonths.has(month)){
+      if(selectedMonths.size > 1){ selectedMonths.delete(month); }
+    } else {
+      selectedMonths.add(month);
+    }
+    renderAll();
+  }
+
+  function renderAll(){
+    var monthList = PERIODS.filter(function(m){ return selectedMonths.has(m); });
+    var isSingleMonth = monthList.length === 1;
+    var includesOngoing = selectedMonths.has(PERIODS[PERIODS.length - 1]);
+    var cur = computeAggregate(selectedMonths, selectedCompanies);
+    lastAggregate = cur;
+
+    var prev = null, prevLabel = null, multiNote = null;
+    if(isSingleMonth){
+      var idx = PERIODS.indexOf(monthList[0]);
+      var prevKey = idx > 0 ? PERIODS[idx-1] : null;
+      prev = prevKey ? computeAggregate(new Set([prevKey]), selectedCompanies) : null;
+      prevLabel = prevKey ? PERIOD_META[prevKey].lower : null;
+    } else {
+      multiNote = monthList.length + ' meses selecionados';
+    }
+
+    monthChips.forEach(function(c){ c.input.checked = selectedMonths.has(c.key); });
+    if(isSingleMonth){
+      monthDdLabel.textContent = PERIOD_META[monthList[0]].short;
+    } else {
+      monthDdLabel.textContent = monthList.length + ' meses selecionados';
+    }
+    var note = document.getElementById('monthNote');
+    if(isSingleMonth){
+      var pm = PERIOD_META[monthList[0]];
+      var soloIsLatest = monthList[0] === PERIODS[PERIODS.length - 1];
+      note.innerHTML = (soloIsLatest ? '<span class="dot"></span>' : '') + pm.name + '/' + pm.year + (soloIsLatest ? ' · mês em andamento' : ' · mês encerrado');
+    } else {
+      // com vários meses selecionados, o botão "Período" já mostra a
+      // contagem — evita repetir a lista inteira de meses aqui embaixo
+      note.innerHTML = '';
+    }
+    var monthScopeLabel = isSingleMonth ? PERIOD_META[monthList[0]].lower : monthList.map(function(m){ return PERIOD_META[m].lower; }).join(', ');
+    var monthScopeShort = isSingleMonth ? PERIOD_META[monthList[0]].lower : (monthList.length + ' meses');
+
+    if(includesOngoing){
+      document.getElementById('kpiPrevisaoLabel').textContent = 'Previsão de faturamento';
+      document.getElementById('kpiPrevisaoValue').textContent = fmtBRL(cur.previsao_total);
+    } else {
+      document.getElementById('kpiPrevisaoLabel').textContent = 'Faturamento realizado';
+      document.getElementById('kpiPrevisaoValue').textContent = fmtBRL(cur.faturamento_realizado);
+    }
+
+    document.getElementById('kpiAbertoValue').textContent = fmtBRL(cur.aberto_total);
+    renderCurrencyDelta('kpiAbertoDelta', cur.aberto_total, prev ? prev.aberto_total : null, prevLabel, true, multiNote);
+
+    document.getElementById('kpiAcordoValue').textContent = fmtBRL(cur.acordo_total);
+    renderCurrencyDelta('kpiAcordoDelta', cur.acordo_total, prev ? prev.acordo_total : null, prevLabel, null, multiNote);
+
+    document.getElementById('kpiRecuperadoValue').textContent = fmtBRL(cur.recuperado);
+    renderCurrencyDelta('kpiRecuperadoDelta', cur.recuperado, prev ? prev.recuperado : null, prevLabel, false, multiNote);
+
+    var visibleCompanies = COMPANIES.filter(function(c){ return selectedCompanies.has(c); });
+    var scopeLabel = allMode ? 'todas as empresas' : visibleCompanies.join(', ');
+    var abertoNote = abertoOnly ? '' : ' (inadimplência inclui em acordo/cessão)';
+    document.getElementById('companiesSub').textContent = 'Composição do valor em aberto por empresa' + (allMode ? '' : ' — ' + scopeLabel) + abertoNote;
+
+    // ---- donut: composição do valor em aberto entre as empresas selecionadas ----
+    var pieVals = {}, pieTotal = 0;
+    COMPANIES.forEach(function(c){
+      if(!selectedCompanies.has(c)) return;
+      var cd = cur.companies[c];
+      var inadVal = cd.aberto + (abertoOnly ? 0 : cd.acordo);
+      pieVals[c] = inadVal;
+      pieTotal += inadVal;
+    });
+    pieEmptyPath.setAttribute('d', donutPath(0, 359.99));
+    pieEmptyPath.style.display = pieTotal > 0 ? 'none' : '';
+    var pieAngle = 0;
+    COMPANIES.forEach(function(c){
+      var inFilter = selectedCompanies.has(c);
+      pieLegendRows[c].row.classList.toggle('is-hidden', !inFilter);
+      if(!inFilter){ pieSlices[c].style.display = 'none'; pieLabels[c].style.display = 'none'; return; }
+      var inadVal = pieVals[c];
+      var share = pieTotal > 0 ? inadVal/pieTotal*100 : 0;
+      var span = pieTotal > 0 ? (inadVal/pieTotal*360) : 0;
+      if(inadVal > 0){
+        pieSlices[c].setAttribute('d', donutPath(pieAngle, pieAngle + Math.max(span, 0.01)));
+        pieSlices[c].style.display = '';
+      } else {
+        pieSlices[c].style.display = 'none';
+      }
+      var midAngle = pieAngle + span/2;
+      pieAngle += span;
+      // rótulo de % em cima da fatia — some em fatias pequenas demais pra
+      // caber o texto sem apertar (a legenda ao lado já traz o valor exato)
+      if(inadVal > 0 && span >= 16){
+        var lp = pieXY(PIE_LABEL_R, midAngle);
+        pieLabels[c].setAttribute('x', lp.x);
+        pieLabels[c].setAttribute('y', lp.y);
+        pieLabels[c].textContent = fmtPct(share);
+        pieLabels[c].style.display = '';
+      } else {
+        pieLabels[c].style.display = 'none';
+      }
+      pieLegendRows[c].value.textContent = fmtBRL2(inadVal);
+    });
+
+    document.getElementById('acordoSub').textContent = 'Valor em acordo/cessão e % já negociado sobre o valor em aberto' + (allMode ? '' : ' — ' + scopeLabel);
+
+    // ---- donut: composição do valor em acordo/cessão entre as empresas selecionadas ----
+    var acordoPieVals = {}, acordoPieTotal = 0;
+    COMPANIES.forEach(function(c){
+      if(!selectedCompanies.has(c)) return;
+      acordoPieVals[c] = cur.companies[c].acordo;
+      acordoPieTotal += cur.companies[c].acordo;
+    });
+    acordoPieEmptyPath.setAttribute('d', donutPath(0, 359.99));
+    acordoPieEmptyPath.style.display = acordoPieTotal > 0 ? 'none' : '';
+    var acordoPieAngle = 0;
+    COMPANIES.forEach(function(c){
+      var inFilter = selectedCompanies.has(c);
+      acordoPieLegendRows[c].row.classList.toggle('is-hidden', !inFilter);
+      if(!inFilter){ acordoPieSlices[c].style.display = 'none'; acordoPieLabels[c].style.display = 'none'; return; }
+      var acordoVal = acordoPieVals[c];
+      var share = acordoPieTotal > 0 ? acordoVal/acordoPieTotal*100 : 0;
+      var span = acordoPieTotal > 0 ? (acordoVal/acordoPieTotal*360) : 0;
+      if(acordoVal > 0){
+        acordoPieSlices[c].setAttribute('d', donutPath(acordoPieAngle, acordoPieAngle + Math.max(span, 0.01)));
+        acordoPieSlices[c].style.display = '';
+      } else {
+        acordoPieSlices[c].style.display = 'none';
+      }
+      var acordoMidAngle = acordoPieAngle + span/2;
+      acordoPieAngle += span;
+      if(acordoVal > 0 && span >= 16){
+        var alp = pieXY(PIE_LABEL_R, acordoMidAngle);
+        acordoPieLabels[c].setAttribute('x', alp.x);
+        acordoPieLabels[c].setAttribute('y', alp.y);
+        acordoPieLabels[c].textContent = fmtPct(share);
+        acordoPieLabels[c].style.display = '';
+      } else {
+        acordoPieLabels[c].style.display = 'none';
+      }
+      acordoPieLegendRows[c].value.textContent = fmtBRL2(acordoVal);
+    });
+
+    // ---- donut: composição do fluxo "Acordo/Solicitações Mês" entre as
+    // empresas selecionadas — usa sempre a somatória de TODOS os meses do
+    // gráfico de colunas ao lado (EVO_MONTHS), não o filtro de período do
+    // topo do painel ----
+    var acordoMesYearAgg = computeAggregate(new Set(EVO_MONTHS), selectedCompanies);
+    lastAcordoMesYearAgg = acordoMesYearAgg;
+
+    var acordoMesPieVals = {}, acordoMesPieTotal = 0;
+    COMPANIES.forEach(function(c){
+      if(!selectedCompanies.has(c)) return;
+      acordoMesPieVals[c] = acordoMesYearAgg.companies[c].acordoMes;
+      acordoMesPieTotal += acordoMesYearAgg.companies[c].acordoMes;
+    });
+    acordoMesPieEmptyPath.setAttribute('d', donutPath(0, 359.99));
+    acordoMesPieEmptyPath.style.display = acordoMesPieTotal > 0 ? 'none' : '';
+    var acordoMesPieAngle = 0;
+    COMPANIES.forEach(function(c){
+      var inFilter = selectedCompanies.has(c);
+      acordoMesPieLegendRows[c].row.classList.toggle('is-hidden', !inFilter);
+      if(!inFilter){ acordoMesPieSlices[c].style.display = 'none'; acordoMesPieLabels[c].style.display = 'none'; return; }
+      var acordoMesVal = acordoMesPieVals[c];
+      var share = acordoMesPieTotal > 0 ? acordoMesVal/acordoMesPieTotal*100 : 0;
+      var span = acordoMesPieTotal > 0 ? (acordoMesVal/acordoMesPieTotal*360) : 0;
+      if(acordoMesVal > 0){
+        acordoMesPieSlices[c].setAttribute('d', donutPath(acordoMesPieAngle, acordoMesPieAngle + Math.max(span, 0.01)));
+        acordoMesPieSlices[c].style.display = '';
+      } else {
+        acordoMesPieSlices[c].style.display = 'none';
+      }
+      var acordoMesMidAngle = acordoMesPieAngle + span/2;
+      acordoMesPieAngle += span;
+      if(acordoMesVal > 0 && span >= 16){
+        var amlp = pieXY(PIE_LABEL_R, acordoMesMidAngle);
+        acordoMesPieLabels[c].setAttribute('x', amlp.x);
+        acordoMesPieLabels[c].setAttribute('y', amlp.y);
+        acordoMesPieLabels[c].textContent = fmtPct(share);
+        acordoMesPieLabels[c].style.display = '';
+      } else {
+        acordoMesPieLabels[c].style.display = 'none';
+      }
+      acordoMesPieLegendRows[c].value.textContent = fmtBRL2(acordoMesVal);
+    });
+
+    var monthInad = {}, monthAberto = {}, maxAberto = 1, monthRecuperado = {}, maxRecuperado = 1, monthRecuperadoPct = {}, monthAcordoMes = {}, maxAcordoMes = 1;
+    EVO_MONTHS.forEach(function(m){
+      var agg = computeAggregate(new Set([m]), selectedCompanies);
+      var inadTotal = agg.aberto_total + (abertoOnly ? 0 : agg.acordo_total);
+      monthInad[m] = agg.previsao_total > 0 ? (inadTotal/agg.previsao_total) * 100 : 0;
+      monthAberto[m] = agg.aberto_total;
+      if(agg.aberto_total > maxAberto) maxAberto = agg.aberto_total;
+      monthRecuperado[m] = agg.recuperado;
+      if(agg.recuperado > maxRecuperado) maxRecuperado = agg.recuperado;
+      monthRecuperadoPct[m] = agg.previsao_total > 0 ? (agg.recuperado/agg.previsao_total) * 100 : 0;
+      monthAcordoMes[m] = agg.acordoMes_total;
+      if(agg.acordoMes_total > maxAcordoMes) maxAcordoMes = agg.acordoMes_total;
+    });
+    var inadVals = EVO_MONTHS.map(function(m){ return monthInad[m]; }).concat(EVO_MONTHS.map(function(m){ return monthRecuperadoPct[m]; }));
+    var rawMin = Math.min.apply(null, inadVals), rawMax = Math.max.apply(null, inadVals);
+    var span = rawMax - rawMin;
+    if(span < 8){ var mid = (rawMax+rawMin)/2; rawMin = mid-4; rawMax = mid+4; span = 8; }
+    var pad = span*0.18;
+    minV = Math.max(0, rawMin - pad);
+    maxV = Math.min(100, rawMax + pad);
+    renderGrid();
+
+    var d = EVO_MONTHS.map(function(m,i){ return (i===0?'M':'L') + xPos(i) + ',' + yPos(monthInad[m]); }).join(' ');
+    path.setAttribute('d', d);
+    var d2 = EVO_MONTHS.map(function(m,i){ return (i===0?'M':'L') + xPos(i) + ',' + yPos(monthRecuperadoPct[m]); }).join(' ');
+    path2.setAttribute('d', d2);
+    EVO_MONTHS.forEach(function(m,i){
+      var cy = yPos(monthInad[m]);
+      var isSel = selectedMonths.has(m);
+      dots[m].setAttribute('cy', cy);
+      dots[m].setAttribute('r', isSel ? '5' : '4');
+      valueLabels[m].setAttribute('y', cy - 12);
+      valueLabels[m].textContent = fmtPct(monthInad[m]);
+      valueLabels[m].style.opacity = isSel ? 1 : 0;
+      xLabels[m].setAttribute('fill', isSel ? 'var(--ink)' : 'var(--ink-2)');
+      xLabels[m].setAttribute('font-weight', isSel ? '800' : '600');
+
+      var cy2 = yPos(monthRecuperadoPct[m]);
+      dots2[m].setAttribute('cy', cy2);
+      dots2[m].setAttribute('r', isSel ? '5' : '4');
+      valueLabels2[m].setAttribute('y', cy2 - 12);
+      valueLabels2[m].textContent = fmtPct(monthRecuperadoPct[m]);
+      valueLabels2[m].style.opacity = isSel ? 1 : 0;
+
+      var mbEl = monthBarEls[m];
+      var mbScale = Math.max(maxAberto, maxRecuperado);
+      var mbBarMax = 160;
+      var h = Math.max(6, Math.round(mbBarMax * monthAberto[m] / mbScale));
+      mbEl.barAberto.style.height = h + 'px';
+      mbEl.abertoLabel = fmtBRL(monthAberto[m]);
+      mbEl.valAberto.textContent = isSel ? fmtMil(monthAberto[m]) : '';
+
+      var hr = Math.max(6, Math.round(mbBarMax * monthRecuperado[m] / mbScale));
+      mbEl.barRec.style.height = hr + 'px';
+      mbEl.recuperadoLabel = fmtBRL(monthRecuperado[m]);
+      mbEl.valRec.textContent = isSel ? fmtMil(monthRecuperado[m]) : '';
+
+      mbEl.grp.classList.toggle('active', isSel);
+
+      var amEl = acordoMesBarEls[m];
+      var amBarMax = 160;
+      var amH = Math.max(6, Math.round(amBarMax * monthAcordoMes[m] / maxAcordoMes));
+      amEl.bar.style.height = amH + 'px';
+      amEl.label = fmtBRL(monthAcordoMes[m]);
+      amEl.val.textContent = isSel ? fmtMil(monthAcordoMes[m]) : '';
+      amEl.grp.classList.toggle('active', isSel);
+    });
+
+    updateHighlights();
+  }
+
+  // ---- atualização de dados: busca a aba "Faturamento" publicada como CSV
+  // (Google Sheets → Arquivo → Compartilhar → Publicar na web) diretamente
+  // pelo navegador de cada pessoa que abrir este arquivo — sem login, sem
+  // depender do Claude. Atualiza sozinho a cada 2 min e também sob demanda
+  // sem botão manual — só a atualização automática a cada 2 min. ----
+  var CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTvkpZXLARwz3osC8qU1_SecUKmRyvEThHztlWjIisp1-r-e0cVPMnqXVuc9SXBCX1JabuWyEqFlNTe/pub?gid=751401495&single=true&output=csv';
+  var AUTO_REFRESH_MS = 120000; // 2 minutos
+
+  var updateMeta = document.getElementById('updateMeta');
+
+  function pad2(n){ return n < 10 ? '0'+n : ''+n; }
+  function fmtDateBR(iso){
+    var p = String(iso).split('-');
+    return p.length === 3 ? (p[2] + '/' + p[1] + '/' + p[0]) : iso;
+  }
+  function fmtTimeBR(d){ return pad2(d.getHours()) + ':' + pad2(d.getMinutes()); }
+  function setUpdateMeta(text, cls){
+    updateMeta.textContent = text;
+    updateMeta.className = 'update-meta' + (cls ? ' ' + cls : '');
+  }
+  setUpdateMeta('última atualização às ' + fmtTimeBR(new Date()));
+
+  // número pt-BR ("1.234,56" ou "1234") -> Number
+  function parseBRNumber(s){
+    if(s === undefined || s === null || s === '') return 0;
+    var n = parseFloat(String(s).replace(/\./g,'').replace(',', '.'));
+    return isNaN(n) ? 0 : n;
+  }
+
+  // parser de linha CSV simples (respeita campos entre aspas com vírgula)
+  function parseCSVLine(line){
+    var out = [], cur = '', inQ = false;
+    for(var i=0;i<line.length;i++){
+      var ch = line[i];
+      if(inQ){
+        if(ch === '"'){ if(line[i+1] === '"'){ cur += '"'; i++; } else { inQ = false; } }
+        else { cur += ch; }
+      } else {
+        if(ch === '"'){ inQ = true; }
+        else if(ch === ','){ out.push(cur); cur = ''; }
+        else { cur += ch; }
+      }
+    }
+    out.push(cur);
+    return out;
+  }
+
+  // a aba "Faturamento" da planilha traz blocos empilhados — Faturamento,
+  // Recuperado, Inadimplência, Inadimplência Mês, Em aberto, Em acordo /
+  // cessão, Acordo/Solicitação Acumulada e Acordo/Solicitação Mês — cada
+  // um com uma linha por empresa e uma coluna por mês (MM/AAAA, agora
+  // cobrindo 2025 e 2026). O KPI "Em aberto" usa o bloco "Inadimplência
+  // Mês" quando ele existe na planilha, com "Em aberto" e "Inadimplência"
+  // como fallback para planilhas antigas. O KPI "Acordo/Solicitações" usa
+  // o bloco "Acordo/Solicitação Acumulada" quando ele existe, com "Em
+  // acordo / cessão" como fallback — os dois são saldos (estoque), ver
+  // computeAggregate. Já o gráfico "Evolução mensal — Acordo/Solicitações"
+  // usa o bloco "Acordo/Solicitação Mês" (aceita também o nome no plural,
+  // "Acordo/Solicitações Mês", como fallback), que é um fluxo mensal
+  // (somado ao longo dos meses selecionados, igual previsão/recuperado). O
+  // aging (0-30/31-60/...) só existe na aba detalhada "Base"; por isso a
+  // atualização automática fica com aging zerado.
+  var BLOCK_NAMES = ['Faturamento', 'Recuperado', 'Inadimplência', 'Inadimplência Mês', 'Em aberto', 'Em acordo / cessão', 'Acordo/Solicitação Acumulada', 'Acordo/Solicitação Mês', 'Acordo/Solicitações Mês'];
+
+  function parseSummaryCSV(text){
+    var lines = text.replace(/\r\n/g,'\n').split('\n').filter(function(l){ return l.length > 0; });
+    var blocks = {}, cur = null;
+    lines.forEach(function(line){
+      var cells = parseCSVLine(line);
+      var first = (cells[0] || '').trim();
+      if(BLOCK_NAMES.indexOf(first) !== -1){
+        cur = {header: cells, rows: {}};
+        blocks[first] = cur;
+        return;
+      }
+      if(!first){ cur = null; return; }
+      if(cur){ cur.rows[first] = cells; }
+    });
+    return blocks;
+  }
+
+  function valueFor(block, monthCol, company){
+    if(!block) return 0;
+    var idx = block.header.indexOf(monthCol);
+    var row = block.rows[company];
+    if(idx < 0 || !row) return 0;
+    return parseBRNumber(row[idx]);
+  }
+
+  function buildDataFromCSV(csvText){
+    var blocks = parseSummaryCSV(csvText);
+    var abertoBlock = blocks['Inadimplência Mês'] || blocks['Em aberto'] || blocks['Inadimplência'];
+    var acordoBlock = blocks['Acordo/Solicitação Acumulada'] || blocks['Em acordo / cessão'];
+    var acordoMesBlock = blocks['Acordo/Solicitação Mês'] || blocks['Acordo/Solicitações Mês'];
+    var months = {};
+    PERIODS.forEach(function(m, mi){
+      var col = PERIOD_META[m].col;
+      var isOngoing = (mi === PERIODS.length - 1);
+      var companies = {};
+      COMPANIES.forEach(function(c){
+        var previsao = valueFor(blocks['Faturamento'], col, c);
+        var aberto = valueFor(abertoBlock, col, c);
+        var recuperado = valueFor(blocks['Recuperado'], col, c);
+        var acordo = valueFor(acordoBlock, col, c);
+        var acordoMes = valueFor(acordoMesBlock, col, c);
+        var entry = {
+          previsao: previsao, aberto: aberto,
+          adimplencia: previsao > 0 ? (1 - aberto/previsao) : 1,
+          acordo: acordo, recuperado: recuperado, acordoMes: acordoMes,
+          aging: {'0-30':0,'31-60':0,'61-90':0,'90+':0}
+        };
+        if(!isOngoing){ entry.faturamento_realizado = previsao; }
+        companies[c] = entry;
+      });
+      months[m] = {companies: companies};
+    });
+    return months;
+  }
+
+  // valida se o CSV recebido tem cara de resposta válida (evita sobrescrever
+  // dados bons com uma página de erro/HTML retornada pelo Google em falhas)
+  function looksLikeValidCSV(text){
+    return typeof text === 'string' && text.length > 20 && BLOCK_NAMES.some(function(b){ return text.indexOf(b) !== -1; });
+  }
+
+  function runUpdate(){
+    var url = CSV_URL + '&_ts=' + Date.now();
+    fetch(url, {cache:'no-store'})
+      .then(function(res){
+        if(!res.ok){ throw new Error('http_' + res.status); }
+        return res.text();
+      })
+      .then(function(csvText){
+        if(!looksLikeValidCSV(csvText)){ throw new Error('formato_inesperado'); }
+        var newMonths = buildDataFromCSV(csvText);
+        STORE = {updatedAt: new Date().toISOString().slice(0,10), months: newMonths};
+        DATA = STORE.months;
+        renderAll();
+        setUpdateMeta('última atualização às ' + fmtTimeBR(new Date()), 'ok');
+      })
+      .catch(function(err){
+        // atualização automática que falhou (ex.: sem internet no momento):
+        // mantém silenciosamente os últimos dados carregados com sucesso,
+        // sem substituir a mensagem por um erro constante.
+      });
+  }
+
+  // primeira atualização automática ao abrir a página + atualização periódica
+  runUpdate();
+  setInterval(runUpdate, AUTO_REFRESH_MS);
+
+  // ---- limpar filtros: volta empresas/considerar acordos/período ao padrão ----
+  document.getElementById('clearFiltersBtn').addEventListener('click', function(){
+    selectedCompanies = new Set(COMPANIES);
+    allMode = true;
+    cfChips.forEach(function(chip){
+      var c = chip.getAttribute('data-co');
+      chip.classList.toggle('active', c === '__all__');
+    });
+
+    abertoOnly = true;
+    scopeButtons.forEach(function(b){ b.classList.toggle('active', b.getAttribute('data-scope') === 'nao'); });
+
+    selectedMonths = new Set([PERIODS[PERIODS.length - 1]]);
+
+    renderAll();
+  });
+
+  renderAll();
+})();
+</script>
+
+</body>
+</html>
